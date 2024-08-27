@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.CreateTeamDTO;
 import com.example.demo.model.Player;
 import com.example.demo.model.Team;
 import com.example.demo.service.TeamService;
@@ -25,5 +26,10 @@ public class TeamController {
     @DeleteMapping("/{playerId}")
     public Team removePlayerFromTeam(@RequestParam Long userId, @PathVariable Long playerId) {
         return teamService.removePlayerFromTeam(userId, playerId);
+    }
+
+    @PostMapping("/create")
+    public Team createTeam(@RequestBody CreateTeamDTO createTeamDTO) {
+        return teamService.createTeam(createTeamDTO);
     }
 }

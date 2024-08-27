@@ -5,6 +5,7 @@
 /Users/arees/fantasy-soccer-app/backend/src/main/java/com/example/demo/controller/TeamController.java
 /Users/arees/fantasy-soccer-app/backend/src/main/java/com/example/demo/controller/UserController.java
 /Users/arees/fantasy-soccer-app/backend/src/main/java/com/example/demo/dto/BirthDTO.java
+/Users/arees/fantasy-soccer-app/backend/src/main/java/com/example/demo/dto/CreateTeamDTO.java
 /Users/arees/fantasy-soccer-app/backend/src/main/java/com/example/demo/dto/GamesDTO.java
 /Users/arees/fantasy-soccer-app/backend/src/main/java/com/example/demo/dto/PlayerDTO.java
 /Users/arees/fantasy-soccer-app/backend/src/main/java/com/example/demo/dto/PlayerResponseDTO.java

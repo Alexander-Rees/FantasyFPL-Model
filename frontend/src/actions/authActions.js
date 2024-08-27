@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { registerSuccess, registerFail, loginSuccess, loginFail, logout } from '../reducers/authReducer';
 
-axios.defaults.baseURL = 'http://localhost:8080';
+axios.defaults.baseURL = 'http://localhost:8081';
 
 export const registerUser = (userData) => async (dispatch) => {
   try {
