@@ -14,19 +14,16 @@ public class Team {
     private User user;
 
     private String name;
-
     private Double budget;
 
-    @ManyToMany
+    @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     @JoinTable(name = "team_players", joinColumns = @JoinColumn(name = "team_id"), inverseJoinColumns = @JoinColumn(name = "player_id"))
     private List<Player> players;
 
     private LocalDateTime createdAt;
-
     private LocalDateTime updatedAt;
 
     // Getters and setters
-
     public Long getId() {
         return id;
     }

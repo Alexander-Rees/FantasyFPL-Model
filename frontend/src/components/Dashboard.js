@@ -1,21 +1,29 @@
 import React from 'react';
-import { useDispatch } from 'react-redux';
-import { logoutUser } from '../actions/authActions';
+import { useNavigate } from 'react-router-dom';
 
-const Dashboard = () => {
-  const dispatch = useDispatch();
+const HomePage = () => {
+  const navigate = useNavigate();
 
-  const handleLogout = () => {
-    dispatch(logoutUser());
+  const handleTeamView = () => {
+    navigate('/team'); // Navigate to the login page
   };
 
   return (
-    <div>
-      <h2>Welcome to your Dashboard!</h2>
-      {/* Add dashboard content here */}
-      <button onClick={handleLogout}>Logout</button>
+    <div style={{ textAlign: 'center', marginTop: '20%' }}>
+      <h1>Welcome to the Fantasy Premier League</h1>
+      <button 
+        onClick={handleTeamView} 
+        style={{ 
+          marginTop: '20px', 
+          padding: '10px 20px', 
+          fontSize: '16px', 
+          cursor: 'pointer' 
+        }}
+      >
+        View Team
+      </button>
     </div>
   );
 };
 
-export default Dashboard;
+export default HomePage;

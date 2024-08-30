@@ -4,16 +4,25 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
 public class Player {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String name;
     private String position;
     private String team;
     private int points;
+
+    @ManyToMany(mappedBy = "players")
+    @JsonBackReference
+    private List<Team> teams;
 
     // Default constructor
     public Player() {
@@ -67,5 +76,13 @@ public class Player {
 
     public void setPoints(int points) {
         this.points = points;
+    }
+
+    public List<Team> getTeams() {
+        return teams;
+    }
+
+    public void setTeams(List<Team> teams) {
+        this.teams = teams;
     }
 }

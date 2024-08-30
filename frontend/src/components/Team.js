@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const Team = () => {
   const [team, setTeam] = useState(null);
   const [players, setPlayers] = useState([]);
   const [playerId, setPlayerId] = useState('');
+  const navigate = useNavigate(); // useNavigate hook from react-router-dom
 
   useEffect(() => {
     // Fetch user's current team
@@ -34,6 +36,10 @@ const Team = () => {
       .catch(error => {
         console.error('There was an error adding the player to the team!', error);
       });
+  };
+
+  const handleReturn = () => {
+    navigate('/dashboard'); // Corrected to use the navigate function
   };
 
   return (
@@ -67,6 +73,18 @@ const Team = () => {
         </select>
         <button onClick={handleAddPlayer}>Add Player</button>
       </div>
+
+      <button
+        onClick={handleReturn}  // Move onClick inside the button element
+        style={{ 
+          marginTop: '20px', 
+          padding: '10px 20px', 
+          fontSize: '16px', 
+          cursor: 'pointer' 
+        }}
+      >
+        Return to Dashboard
+      </button>
     </div>
   );
 };
