@@ -9,6 +9,8 @@ import com.example.demo.repository.TeamRepository;
 import com.example.demo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,10 +26,29 @@ public class TeamService {
     @Autowired
     private PlayerRepository playerRepository;
 
+    @Autowired
+    private RestTemplate restTemplate; // Inject RestTemplate
+
+    // Method to call the Flask API and get the optimal team
+    public String getOptimalTeam() {
+        String flaskApiUrl = "http://127.0.0.1:5000/optimal_team"; // Flask API URL
+        ResponseEntity<String> response = restTemplate.getForEntity(flaskApiUrl, String.class);
+        return response.getBody(); // Returns the JSON response from the Flask API
+    }
+
+    // Method to call the Flask API and get top players by position
+    public String getTopPlayers() {
+        String flaskApiUrl = "http://127.0.0.1:5000/top_players"; // Flask API URL
+        ResponseEntity<String> response = restTemplate.getForEntity(flaskApiUrl, String.class);
+        return response.getBody();
+    }
+
+    // Existing method to get a team by user ID
     public Team getTeamByUserId(Long userId) {
         return teamRepository.findByUserId(userId);
     }
 
+    // Existing method to add a player to a team
     public Team addPlayerToTeam(Long userId, Player player) {
         Team team = teamRepository.findByUserId(userId);
         if (team == null) {
@@ -35,7 +56,6 @@ public class TeamService {
             team.setUser(new User(userId)); // Assuming the user already exists with this ID
         }
 
-        // Ensure the Player ID is not null
         if (player.getId() == null) {
             throw new IllegalArgumentException("Player ID must not be null");
         }
@@ -50,6 +70,7 @@ public class TeamService {
         return teamRepository.save(team);
     }
 
+    // Existing method to remove a player from a team
     public Team removePlayerFromTeam(Long userId, Long playerId) {
         Team team = teamRepository.findByUserId(userId);
         if (team != null) {
@@ -59,24 +80,21 @@ public class TeamService {
         return null;
     }
 
+    // Existing method to create a new team
     public Team createTeam(CreateTeamDTO createTeamDTO) {
-        // Retrieve the user by userId
         User user = userRepository.findById(createTeamDTO.getUserId()).orElseThrow();
 
-        // Create a new team
         Team team = new Team();
         team.setName(createTeamDTO.getName());
         team.setBudget(createTeamDTO.getBudget());
         team.setUser(user);
 
-        // Find players by their IDs and add to the team
         List<Player> players = createTeamDTO.getPlayerIds().stream()
                 .map(playerId -> playerRepository.findById(playerId).orElseThrow())
                 .collect(Collectors.toList());
 
         team.setPlayers(players);
 
-        // Save the team in the database
         return teamRepository.save(team);
     }
 }

@@ -6,15 +6,12 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public class PlayerDTO {
     private Long id;
     private String name;
-    private String firstname;
-    private String lastname;
-    private int age;
-    private BirthDTO birth;
-    private String nationality;
-    private String height;
-    private String weight;
+    private String team;
     private boolean injured;
-    private String photo;
+    private int position;
+    private double value;
+    private int totalPoints;
+    private int weeklyPoints;
 
     // Getters and setters
     public Long getId() {
@@ -33,60 +30,12 @@ public class PlayerDTO {
         this.name = name;
     }
 
-    public String getFirstname() {
-        return firstname;
+    public String getTeam() {
+        return team;
     }
 
-    public void setFirstname(String firstname) {
-        this.firstname = firstname;
-    }
-
-    public String getLastname() {
-        return lastname;
-    }
-
-    public void setLastname(String lastname) {
-        this.lastname = lastname;
-    }
-
-    public int getAge() {
-        return age;
-    }
-
-    public void setAge(int age) {
-        this.age = age;
-    }
-
-    public BirthDTO getBirth() {
-        return birth;
-    }
-
-    public void setBirth(BirthDTO birth) {
-        this.birth = birth;
-    }
-
-    public String getNationality() {
-        return nationality;
-    }
-
-    public void setNationality(String nationality) {
-        this.nationality = nationality;
-    }
-
-    public String getHeight() {
-        return height;
-    }
-
-    public void setHeight(String height) {
-        this.height = height;
-    }
-
-    public String getWeight() {
-        return weight;
-    }
-
-    public void setWeight(String weight) {
-        this.weight = weight;
+    public void setTeam(String team) {
+        this.team = team;
     }
 
     public boolean isInjured() {
@@ -97,11 +46,35 @@ public class PlayerDTO {
         this.injured = injured;
     }
 
-    public String getPhoto() {
-        return photo;
+    public int getPosition() {
+        return position;
     }
 
-    public void setPhoto(String photo) {
-        this.photo = photo;
+    public void setPosition(int position) {
+        this.position = position;
+    }
+
+    public double getValue() {
+        return value;
+    }
+
+    public void setValue(double value) {
+        this.value = value;
+    }
+
+    public int getTotalPoints() {
+        return totalPoints;
+    }
+
+    public void setTotalPoints(int totalPoints) {
+        this.totalPoints = totalPoints;
+    }
+
+    public int getWeeklyPoints() {
+        return weeklyPoints;
+    }
+
+    public void setWeeklyPoints(int weeklyPoints) {
+        this.weeklyPoints = weeklyPoints;
     }
 }

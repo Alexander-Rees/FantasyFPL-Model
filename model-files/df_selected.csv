@@ -1,0 +1,634 @@
+name,team,value,first_last_name
+Alex Scott,Bournemouth,5.0,Alex Scott
+Carlos Pereira,Nott'm Forest,4.5,Carlos Pereira
+Tomiyasu Takehiro,Arsenal,5.0,Tomiyasu Takehiro
+Malcolm Ebiowei,Crystal Palace,4.5,Malcolm Ebiowei
+Ben Díaz,Southampton,5.5,Ben Díaz
+Pau Torres,Aston Villa,4.5,Pau Torres
+Joel Ward,Crystal Palace,4.5,Joel Ward
+Will Lankshear,Spurs,4.5,Will Lankshear
+Hwang Hee-chan,Wolves,6.5,Hwang Hee-chan
+Mikey Moore,Spurs,4.5,Mikey Moore
+Hákon Valdimarsson,Brentford,4.0,Hákon Valdimarsson
+Alex Paulsen,Bournemouth,4.0,Alex Paulsen
+João Silva,Wolves,5.0,João Silva
+Cole Palmer,Chelsea,10.5,Cole Palmer
+Mitoma Kaoru,Brighton,6.5,Mitoma Kaoru
+Boubakary Soumaré,Leicester,4.5,Boubakary Soumaré
+Chris Wood,Nott'm Forest,6.0,Chris Wood
+Joe Worrall,Nott'm Forest,4.5,Joe Worrall
+Jeffrey Schlupp,Crystal Palace,5.0,Jeffrey Schlupp
+Milos Kerkez,Bournemouth,4.5,Milos Kerkez
+Adrian Mazilu,Brighton,4.5,Adrian Mazilu
+Jason Steele,Brighton,4.5,Jason Steele
+Arijanet Muric,Ipswich,4.5,Arijanet Muric
+Carl Rushworth,Brighton,4.0,Carl Rushworth
+Ibrahim Sangaré,Nott'm Forest,4.5,Ibrahim Sangaré
+Hannibal Mejbri,Man Utd,4.5,Hannibal Mejbri
+Brandon Austin,Spurs,4.0,Brandon Austin
+Conor Coady,Leicester,4.0,Conor Coady
+Wes Foderingham,West Ham,4.5,Wes Foderingham
+Armando Broja,Chelsea,5.5,Armando Broja
+Adam Webster,Brighton,4.5,Adam Webster
+Thomas Partey,Arsenal,5.0,Thomas Partey
+Harry Wilson,Fulham,5.5,Harry Wilson
+Kasey McAteer,Leicester,5.0,Kasey McAteer
+Curtis Jones,Liverpool,5.5,Curtis Jones
+Wes Burns,Ipswich,5.0,Wes Burns
+Yunus Konak,Brentford,4.5,Yunus Konak
+Max Kilman,West Ham,4.5,Max Kilman
+Deniz Undav,Brighton,5.5,Deniz Undav
+Alex Murphy,Newcastle,4.0,Alex Murphy
+George Edmundson,Ipswich,4.0,George Edmundson
+Sávio Oliveira,Man City,6.5,Sávio Oliveira
+Emerson Santos,West Ham,4.5,Emerson Santos
+Abdoulaye Doucouré,Everton,5.5,Abdoulaye Doucouré
+José Sá,Wolves,4.5,José Sá
+Alexander Isak,Newcastle,8.5,Alexander Isak
+Yves Bissouma,Spurs,5.0,Yves Bissouma
+Conor Gallagher,Chelsea,6.0,Conor Gallagher
+Philip Billing,Bournemouth,5.0,Philip Billing
+Gonçalo Guedes,Wolves,5.5,Gonçalo Guedes
+Brajan Gruda,Brighton,5.5,Brajan Gruda
+Rodrigo Hernandez,Man City,6.5,Rodrigo Hernandez
+Đorđe Petrović,Chelsea,4.5,Đorđe Petrović
+Craig Dawson,Wolves,4.5,Craig Dawson
+Jordan Ayew,Crystal Palace,5.5,Jordan Ayew
+Marcos Senesi,Bournemouth,5.0,Marcos Senesi
+Kiernan Dewsbury-Hall,Chelsea,6.0,Kiernan Dewsbury-Hall
+Kaine Kesler-Hayden,Aston Villa,4.0,Kaine Kesler-Hayden
+João Cancelo,Man City,5.5,João Cancelo
+Maxwel Cornet,West Ham,5.0,Maxwel Cornet
+Jefferson Solís,Crystal Palace,5.0,Jefferson Solís
+Jannik Vestergaard,Leicester,4.0,Jannik Vestergaard
+Luke Thomas,Leicester,4.0,Luke Thomas
+Bruno Fernandes,Man Utd,8.5,Bruno Fernandes
+Adam Smith,Bournemouth,4.5,Adam Smith
+Miodrag Pivaš,Newcastle,4.0,Miodrag Pivaš
+Billy Gilmour,Brighton,5.0,Billy Gilmour
+Rasmus Højlund,Man Utd,7.0,Rasmus Højlund
+Callum Wilson,Newcastle,7.0,Callum Wilson
+Crysencio Summerville,West Ham,6.0,Crysencio Summerville
+Jesurun Rak-Sakyi,Crystal Palace,4.5,Jesurun Rak-Sakyi
+Oliver Skipp,Spurs,5.0,Oliver Skipp
+Tomáš Souček,West Ham,5.0,Tomáš Souček
+Taylor Harwood-Bellis,Southampton,4.0,Taylor Harwood-Bellis
+Alphonse Areola,West Ham,4.5,Alphonse Areola
+Lisandro Martínez,Man Utd,4.5,Lisandro Martínez
+Richarlison Andrade,Spurs,7.0,Richarlison Andrade
+Joško Gvardiol,Man City,6.0,Joško Gvardiol
+Harry Clarke,Ipswich,4.0,Harry Clarke
+Joachim Andersen,Crystal Palace,4.5,Joachim Andersen
+Moisés Corozo,Chelsea,5.0,Moisés Corozo
+Carlos Casimiro,Man Utd,5.0,Carlos Casimiro
+Jhon Durán,Aston Villa,6.0,Jhon Durán
+Jacob Murphy,Newcastle,5.5,Jacob Murphy
+Sean Longstaff,Newcastle,5.0,Sean Longstaff
+Leander Dendoncker,Aston Villa,4.5,Leander Dendoncker
+Trevoh Chalobah,Chelsea,4.5,Trevoh Chalobah
+Ryan Manning,Southampton,4.5,Ryan Manning
+Vitalii Mykolenko,Everton,4.5,Vitalii Mykolenko
+Ryan Christie,Bournemouth,5.0,Ryan Christie
+Fábio Silva,Wolves,5.0,Fábio Silva
+Kepa Arrizabalaga,Chelsea,4.5,Kepa Arrizabalaga
+Frank Onyeka,Brentford,5.0,Frank Onyeka
+Youssef Chermiti,Everton,5.0,Youssef Chermiti
+Morgan Gibbs-White,Nott'm Forest,6.5,Morgan Gibbs-White
+Noni Madueke,Chelsea,6.5,Noni Madueke
+Nélson Semedo,Wolves,4.5,Nélson Semedo
+Tommy Doyle,Wolves,5.0,Tommy Doyle
+Tom Heaton,Man Utd,4.0,Tom Heaton
+Lucas Bergvall,Spurs,4.5,Lucas Bergvall
+Lesley Ugochukwu,Chelsea,4.5,Lesley Ugochukwu
+Evan Ferguson,Brighton,5.5,Evan Ferguson
+Christian Eriksen,Man Utd,5.5,Christian Eriksen
+Danny Ings,West Ham,5.0,Danny Ings
+Jean-Ricner Bellegarde,Wolves,5.0,Jean-Ricner Bellegarde
+Tim Ream,Fulham,4.5,Tim Ream
+Benoît Badiashile,Chelsea,4.5,Benoît Badiashile
+Radu Drăgușin,Spurs,4.5,Radu Drăgușin
+Jack Stephens,Southampton,4.0,Jack Stephens
+Mateo Kovačić,Man City,5.5,Mateo Kovačić
+Nicolás Domínguez,Nott'm Forest,5.0,Nicolás Domínguez
+Ben Doak,Liverpool,4.5,Ben Doak
+Phil Foden,Man City,9.5,Phil Foden
+Mason Mount,Man Utd,6.5,Mason Mount
+Gabriel Silva,Arsenal,7.0,Gabriel Silva
+Yasin Ayari,Brighton,5.0,Yasin Ayari
+Facundo Buonanotte,Leicester,5.0,Facundo Buonanotte
+Caoimhin Kelleher,Liverpool,4.5,Caoimhin Kelleher
+Odeluga Offiah,Brighton,4.0,Odeluga Offiah
+Lino Sousa,Aston Villa,4.0,Lino Sousa
+Amario Cozier-Duberry,Brighton,4.5,Amario Cozier-Duberry
+Emerson Junior,Spurs,4.5,Emerson Junior
+Kai Havertz,Arsenal,8.0,Kai Havertz
+Scott Carson,Man City,4.0,Scott Carson
+Ethan Brierley,Brentford,4.5,Ethan Brierley
+Andrey Santos,Chelsea,4.5,Andrey Santos
+Rico Henry,Brentford,4.5,Rico Henry
+Mateusz Lis,Southampton,4.0,Mateusz Lis
+Yoane Wissa,Brentford,6.0,Yoane Wissa
+Daniel Iversen,Leicester,4.0,Daniel Iversen
+Mads Hermansen,Leicester,4.5,Mads Hermansen
+Rob Holding,Crystal Palace,4.5,Rob Holding
+Ismaïla Sarr,Crystal Palace,6.0,Ismaïla Sarr
+Jarrod Bowen,West Ham,7.5,Jarrod Bowen
+Mark O’Mahony,Brighton,4.5,Mark O’Mahony
+Ryan Sessegnon,Fulham,4.5,Ryan Sessegnon
+Josh Dasilva,Brentford,5.0,Josh Dasilva
+Jadon Sancho,Man Utd,6.5,Jadon Sancho
+Sam Johnstone,Crystal Palace,4.5,Sam Johnstone
+Jonny Evans,Man Utd,4.5,Jonny Evans
+Mohamed Salah,Liverpool,12.5,Mohamed Salah
+Timothy Castagne,Fulham,4.5,Timothy Castagne
+Tariq Lamptey,Brighton,4.5,Tariq Lamptey
+Ola Aina,Nott'm Forest,4.5,Ola Aina
+Taiwo Awoniyi,Nott'm Forest,6.0,Taiwo Awoniyi
+Leandro Trossard,Arsenal,7.0,Leandro Trossard
+Jacob Greaves,Ipswich,4.0,Jacob Greaves
+Alfie Whiteman,Spurs,4.0,Alfie Whiteman
+Séamus Coleman,Everton,4.5,Séamus Coleman
+Fabian Schär,Newcastle,5.5,Fabian Schär
+Nicolas Jackson,Chelsea,7.5,Nicolas Jackson
+Joe White,Newcastle,4.5,Joe White
+Jamie Vardy,Leicester,5.5,Jamie Vardy
+Miguel Rejala,Newcastle,6.0,Miguel Rejala
+James Garner,Everton,5.0,James Garner
+Marcus Tavernier,Bournemouth,5.5,Marcus Tavernier
+Lewis Dobbin,Aston Villa,5.0,Lewis Dobbin
+Viljami Sinisalo,Aston Villa,4.0,Viljami Sinisalo
+Omari Kellyman,Chelsea,4.5,Omari Kellyman
+Daniel Podence,Wolves,5.5,Daniel Podence
+Martial Godo,Fulham,4.5,Martial Godo
+Harrison Reed,Fulham,5.0,Harrison Reed
+Guido Rodríguez,West Ham,5.0,Guido Rodríguez
+Will Alves,Leicester,4.5,Will Alves
+Carlos Baleba,Brighton,5.0,Carlos Baleba
+James Hill,Bournemouth,4.0,James Hill
+David Fofana,Chelsea,5.5,David Fofana
+Ryan Fraser,Newcastle,5.0,Ryan Fraser
+Ângelo Damaceno,Chelsea,4.5,Ângelo Damaceno
+Nathan Patterson,Everton,4.5,Nathan Patterson
+Robin Olsen,Aston Villa,4.5,Robin Olsen
+Mathias Jensen,Brentford,5.5,Mathias Jensen
+Bart Verbruggen,Brighton,4.5,Bart Verbruggen
+Dango Ouattara,Bournemouth,5.0,Dango Ouattara
+Emmanuel Dennis,Nott'm Forest,5.0,Emmanuel Dennis
+Yehor Yarmoliuk,Brentford,4.5,Yehor Yarmoliuk
+Julián Álvarez,Man City,7.0,Julián Álvarez
+Tyler Dibling,Southampton,4.5,Tyler Dibling
+Paul Onuachu,Southampton,5.0,Paul Onuachu
+Bobby Clark,Liverpool,4.5,Bobby Clark
+Kieran Tierney,Arsenal,4.5,Kieran Tierney
+Darwin Ribeiro,Liverpool,7.5,Darwin Ribeiro
+Josh Bowler,Nott'm Forest,4.5,Josh Bowler
+Sugawara Yukinari,Southampton,4.5,Sugawara Yukinari
+Aaron Wan-Bissaka,West Ham,4.5,Aaron Wan-Bissaka
+Bobby Cordova-Reid,Leicester,5.5,Bobby Cordova-Reid
+Nathan Broadhead,Ipswich,5.0,Nathan Broadhead
+Matheus Nunes,Man City,5.0,Matheus Nunes
+Jake O'Brien,Everton,5.0,Jake O'Brien
+Cameron Peupion,Brighton,4.5,Cameron Peupion
+Kosta Nedeljković,Aston Villa,4.0,Kosta Nedeljković
+Jay Stansfield,Fulham,5.0,Jay Stansfield
+Nikola Milenković,Nott'm Forest,4.5,Nikola Milenković
+Sepp Berg,Liverpool,4.0,Sepp Berg
+Kevin Mbabu,Fulham,4.0,Kevin Mbabu
+Malang Sarr,Chelsea,4.5,Malang Sarr
+Jarrad Branthwaite,Everton,5.0,Jarrad Branthwaite
+Mats Wieffer,Brighton,5.0,Mats Wieffer
+Kyle Walker,Man City,5.5,Kyle Walker
+Shea Charles,Southampton,4.5,Shea Charles
+Samuel Edozie,Southampton,5.0,Samuel Edozie
+Robert Sánchez,Chelsea,4.5,Robert Sánchez
+Sergio Reguilón,Spurs,4.5,Sergio Reguilón
+Conor Townsend,Ipswich,4.0,Conor Townsend
+Ricardo Pereira,Leicester,4.5,Ricardo Pereira
+Massimo Luongo,Ipswich,4.5,Massimo Luongo
+Harvey Elliott,Liverpool,5.5,Harvey Elliott
+Garang Kuol,Newcastle,4.5,Garang Kuol
+Rúben Dias,Man City,5.5,Rúben Dias
+Romelu Bolingoli,Chelsea,6.5,Romelu Bolingoli
+Ben Chilwell,Chelsea,5.0,Ben Chilwell
+George Hirst,Ipswich,5.5,George Hirst
+Daniel Jebbison,Bournemouth,4.5,Daniel Jebbison
+Tyrick Mitchell,Crystal Palace,5.0,Tyrick Mitchell
+Myles Peart-Harris,Brentford,4.5,Myles Peart-Harris
+Mahmoud Dahoud,Brighton,5.0,Mahmoud Dahoud
+Jonathan Panzo,Nott'm Forest,4.0,Jonathan Panzo
+Nico O'Reilly,Man City,5.0,Nico O'Reilly
+Aaron Ramsdale,Arsenal,4.5,Aaron Ramsdale
+Moussa Diaby,Aston Villa,6.5,Moussa Diaby
+Micky Ven,Spurs,4.5,Micky Ven
+Igor Rodrigues,Brentford,6.0,Igor Rodrigues
+Callum Hudson-Odoi,Nott'm Forest,5.5,Callum Hudson-Odoi
+Armel Bella-Kotchap,Southampton,4.0,Armel Bella-Kotchap
+Rodrigo Gomes,Wolves,5.5,Rodrigo Gomes
+Lamare Bogarde,Aston Villa,4.0,Lamare Bogarde
+Noussair Mazraoui,Man Utd,4.5,Noussair Mazraoui
+Cameron Archer,Southampton,5.0,Cameron Archer
+Ezri Ngoyo,Aston Villa,4.5,Ezri Ngoyo
+Pedro Porro,Spurs,5.5,Pedro Porro
+Alfie Devine,Spurs,4.5,Alfie Devine
+Elkan Baggott,Ipswich,4.0,Elkan Baggott
+Erling Haaland,Man City,15.0,Erling Haaland
+Leif Davis,Ipswich,4.5,Leif Davis
+Virgil Dijk,Liverpool,6.0,Virgil Dijk
+Konstantinos Mavropanos,West Ham,4.5,Konstantinos Mavropanos
+Matt Turner,Nott'm Forest,4.0,Matt Turner
+Juan López,Southampton,4.0,Juan López
+Harry Toffolo,Nott'm Forest,4.5,Harry Toffolo
+Toby Collyer,Man Utd,4.5,Toby Collyer
+Caleb Wiley,Chelsea,4.0,Caleb Wiley
+Ethan Pinnock,Brentford,4.5,Ethan Pinnock
+William Saliba,Arsenal,6.0,William Saliba
+Altay Bayindir,Man Utd,4.5,Altay Bayindir
+Rodrigo Bentancur,Spurs,5.0,Rodrigo Bentancur
+Dominic Solanke-Mitchell,Spurs,7.5,Dominic Solanke-Mitchell
+Chris Richards,Crystal Palace,4.5,Chris Richards
+Rayan Aït-Nouri,Wolves,4.5,Rayan Aït-Nouri
+James Justin,Leicester,4.5,James Justin
+Joshua Zirkzee,Man Utd,7.0,Joshua Zirkzee
+Martin Ødegaard,Arsenal,8.5,Martin Ødegaard
+Cesare Casadei,Chelsea,4.5,Cesare Casadei
+Jaden Philogene,Aston Villa,5.5,Jaden Philogene
+Mario Lemina,Wolves,5.0,Mario Lemina
+Adam Wharton,Crystal Palace,5.0,Adam Wharton
+Luis Sinisterra,Bournemouth,5.0,Luis Sinisterra
+Michael Keane,Everton,4.0,Michael Keane
+Omar Richards,Nott'm Forest,4.5,Omar Richards
+Álex Lopera,Aston Villa,4.5,Álex Lopera
+Stephy Mavididi,Leicester,5.5,Stephy Mavididi
+Anthony Gordon,Newcastle,7.5,Anthony Gordon
+Diego Silva,Aston Villa,4.5,Diego Silva
+Facundo Rebollo,Man Utd,5.0,Facundo Rebollo
+Trent Alexander-Arnold,Liverpool,7.0,Trent Alexander-Arnold
+Josh King,Fulham,4.5,Josh King
+Wanya Marçal-Madivádua,Leicester,4.5,Wanya Marçal-Madivádua
+Jamal Lewis,Newcastle,4.0,Jamal Lewis
+Jørgen Larsen,Wolves,5.5,Jørgen Larsen
+Jack Harrison,Everton,5.5,Jack Harrison
+Riccardo Calafiori,Arsenal,6.0,Riccardo Calafiori
+Luke Cundle,Wolves,4.5,Luke Cundle
+Jan Bednarek,Southampton,4.0,Jan Bednarek
+André Onana,Man Utd,5.0,André Onana
+Odsonne Edouard,Crystal Palace,5.5,Odsonne Edouard
+Deivid Eugênio,Chelsea,5.0,Deivid Eugênio
+Lewis O'Brien,Nott'm Forest,5.0,Lewis O'Brien
+Bukayo Saka,Arsenal,10.0,Bukayo Saka
+Alex Mighten,Nott'm Forest,4.5,Alex Mighten
+Djed Spence,Spurs,4.5,Djed Spence
+Hamza Choudhury,Leicester,4.5,Hamza Choudhury
+Wesley Fofana,Chelsea,4.5,Wesley Fofana
+Lucas Digne,Aston Villa,4.5,Lucas Digne
+Joe Aribo,Southampton,5.0,Joe Aribo
+Fábio Vieira,Arsenal,5.5,Fábio Vieira
+Guglielmo Vicario,Spurs,5.0,Guglielmo Vicario
+Nathan Fraser,Wolves,4.5,Nathan Fraser
+Christian Walton,Ipswich,4.5,Christian Walton
+Matthijs Ligt,Man Utd,5.0,Matthijs Ligt
+Jack Hinshelwood,Brighton,5.0,Jack Hinshelwood
+Antoine Semenyo,Bournemouth,5.5,Antoine Semenyo
+Will Dennis,Bournemouth,4.0,Will Dennis
+Omari Giraud-Hutchinson,Ipswich,5.5,Omari Giraud-Hutchinson
+Dane Scarlett,Spurs,4.5,Dane Scarlett
+Joe Lumley,Southampton,4.0,Joe Lumley
+Dwight McNeil,Everton,5.5,Dwight McNeil
+Kim Ji-soo,Brentford,4.0,Kim Ji-soo
+Andy Irving,West Ham,5.0,Andy Irving
+Karl Hein,Arsenal,4.0,Karl Hein
+Nathaniel Clyne,Crystal Palace,4.5,Nathaniel Clyne
+Saša Lukić,Fulham,5.0,Saša Lukić
+Kevin Bruyne,Man City,9.5,Kevin Bruyne
+Norberto Neto,Bournemouth,4.5,Norberto Neto
+Tyrell Malacia,Man Utd,4.5,Tyrell Malacia
+Lucas Lima,West Ham,6.0,Lucas Lima
+Lewis Dunk,Brighton,4.5,Lewis Dunk
+Mason Holgate,Everton,4.0,Mason Holgate
+Kurt Zouma,West Ham,4.5,Kurt Zouma
+Sékou Mara,Southampton,5.0,Sékou Mara
+Antony Santos,Man Utd,6.0,Antony Santos
+Kalvin Phillips,Ipswich,5.0,Kalvin Phillips
+Ibrahima Konaté,Liverpool,5.0,Ibrahima Konaté
+Chadi Dnanou,Crystal Palace,4.5,Chadi Dnanou
+Freddie Ladapo,Ipswich,4.5,Freddie Ladapo
+Levi Colwill,Chelsea,4.5,Levi Colwill
+Nick Pope,Newcastle,5.0,Nick Pope
+Jorge Filho,Arsenal,5.0,Jorge Filho
+Luke Woolfenden,Ipswich,4.0,Luke Woolfenden
+Łukasz Fabiański,West Ham,4.0,Łukasz Fabiański
+Idrissa Gueye,Everton,5.0,Idrissa Gueye
+Joe Gomez,Liverpool,5.0,Joe Gomez
+Dominic Calvert-Lewin,Everton,6.0,Dominic Calvert-Lewin
+Yerson Mosquera,Wolves,4.0,Yerson Mosquera
+Konstantinos Tsimikas,Liverpool,5.0,Konstantinos Tsimikas
+Christian Nørgaard,Brentford,5.0,Christian Nørgaard
+Emiliano Romero,Aston Villa,5.0,Emiliano Romero
+Declan Rice,Arsenal,6.5,Declan Rice
+Dejan Kulusevski,Spurs,6.5,Dejan Kulusevski
+Pascal Groß,Brighton,6.5,Pascal Groß
+Gabriel Magalhães,Arsenal,6.0,Gabriel Magalhães
+Cody Gakpo,Liverpool,7.5,Cody Gakpo
+Mohammed Kudus,West Ham,6.5,Mohammed Kudus
+Benicio Baker-Boaitey,Brighton,4.5,Benicio Baker-Boaitey
+Vitaly Janelt,Brentford,5.0,Vitaly Janelt
+Adama Traoré,Fulham,5.0,Adama Traoré
+Alexis Allister,Liverpool,6.5,Alexis Allister
+Endo Wataru,Liverpool,5.0,Endo Wataru
+João Silva,Nott'm Forest,6.0,João Silva
+Ashley Phillips,Spurs,4.0,Ashley Phillips
+Keane Lewis-Potter,Brentford,5.0,Keane Lewis-Potter
+Ben Johnson,Ipswich,4.0,Ben Johnson
+Michael Golding,Leicester,4.5,Michael Golding
+Remi Matthews,Crystal Palace,4.0,Remi Matthews
+Alfie Gilchrist,Chelsea,4.0,Alfie Gilchrist
+Nayef Aguerd,West Ham,4.5,Nayef Aguerd
+Emile Rowe,Fulham,5.5,Emile Rowe
+Enes Ünal,Bournemouth,5.5,Enes Ünal
+Lucas Bergström,Chelsea,4.0,Lucas Bergström
+Kacper Kozłowski,Brighton,4.5,Kacper Kozłowski
+Axel Tuanzebe,Ipswich,4.0,Axel Tuanzebe
+Gabriel Jesus,Arsenal,7.0,Gabriel Jesus
+Iliman Ndiaye,Everton,5.5,Iliman Ndiaye
+David Martin,Arsenal,5.5,David Martin
+Enso González,Wolves,4.5,Enso González
+Archie Gray,Spurs,5.0,Archie Gray
+Christopher Nkunku,Chelsea,6.5,Christopher Nkunku
+Manuel Akanji,Man City,5.5,Manuel Akanji
+Ryan Gravenberch,Liverpool,5.0,Ryan Gravenberch
+Joe Willock,Newcastle,5.0,Joe Willock
+Mark Flekken,Brentford,4.5,Mark Flekken
+Lewis Cook,Bournemouth,5.0,Lewis Cook
+Alex Iwobi,Fulham,5.5,Alex Iwobi
+Ethan Nwaneri,Arsenal,4.5,Ethan Nwaneri
+Ross Stewart,Southampton,4.5,Ross Stewart
+Matt Doherty,Wolves,4.5,Matt Doherty
+Alejo Véliz,Spurs,5.0,Alejo Véliz
+Isaac Hayden,Newcastle,4.5,Isaac Hayden
+Wilson Odobert,Spurs,5.5,Wilson Odobert
+Conor Bradley,Liverpool,5.0,Conor Bradley
+Tom Cairney,Fulham,5.0,Tom Cairney
+Jarell Quansah,Liverpool,4.5,Jarell Quansah
+Jacob Ramsey,Aston Villa,5.5,Jacob Ramsey
+Emiliano Stati,Aston Villa,5.5,Emiliano Stati
+James McAtee,Man City,5.0,James McAtee
+Andrew Robertson,Liverpool,6.0,Andrew Robertson
+Luke Harris,Fulham,4.5,Luke Harris
+Youri Tielemans,Aston Villa,5.5,Youri Tielemans
+João Virgínia,Everton,4.0,João Virgínia
+Oleksandr Zinchenko,Arsenal,5.0,Oleksandr Zinchenko
+Francisco Oliveira,Wolves,4.5,Francisco Oliveira
+Ederson Moraes,Man City,5.5,Ederson Moraes
+Andrew Omobamidele,Nott'm Forest,4.5,Andrew Omobamidele
+Norberto Betuncal,Everton,5.0,Norberto Betuncal
+Diogo Teixeira,Man Utd,5.0,Diogo Teixeira
+Pape Sarr,Spurs,5.0,Pape Sarr
+Danny Welbeck,Brighton,5.5,Danny Welbeck
+Yankuba Minteh,Brighton,5.5,Yankuba Minteh
+Nathan Aké,Man City,5.5,Nathan Aké
+Bernd Leno,Fulham,5.0,Bernd Leno
+Jamaal Lascelles,Newcastle,4.5,Jamaal Lascelles
+Axel Disasi,Chelsea,4.5,Axel Disasi
+Kevin Schade,Brentford,5.5,Kevin Schade
+Victor Kristiansen,Leicester,4.5,Victor Kristiansen
+Kyle Walker-Peters,Southampton,4.5,Kyle Walker-Peters
+Daniel Bentley,Wolves,4.0,Daniel Bentley
+Ivan Toney,Brentford,7.5,Ivan Toney
+Antonee Robinson,Fulham,4.5,Antonee Robinson
+Romain Faivre,Bournemouth,5.0,Romain Faivre
+James Ward-Prowse,West Ham,6.5,James Ward-Prowse
+Patson Daka,Leicester,5.0,Patson Daka
+Illia Zabarnyi,Bournemouth,4.5,Illia Zabarnyi
+Gavin Bazunu,Southampton,4.5,Gavin Bazunu
+Sven Botman,Newcastle,4.5,Sven Botman
+Hugo López,Wolves,4.5,Hugo López
+Danny Ward,Leicester,4.0,Danny Ward
+Samuel Amo-Ameyaw,Southampton,4.5,Samuel Amo-Ameyaw
+Joe Gauci,Aston Villa,4.0,Joe Gauci
+João Jesus,Brighton,5.5,João Jesus
+Justin Kluivert,Bournemouth,5.5,Justin Kluivert
+Martin Dúbravka,Newcastle,4.5,Martin Dúbravka
+Flynn Downes,Southampton,5.0,Flynn Downes
+Alejandro Garnacho,Man Utd,6.5,Alejandro Garnacho
+Ronnie Edwards,Southampton,4.0,Ronnie Edwards
+Edson Velázquez,West Ham,5.0,Edson Velázquez
+Jack Grealish,Man City,6.5,Jack Grealish
+Marcus Myers-Harness,Ipswich,5.0,Marcus Myers-Harness
+Jack Taylor,Ipswich,5.0,Jack Taylor
+Simon Adingra,Brighton,5.5,Simon Adingra
+Ben Mee,Brentford,4.5,Ben Mee
+Leon Chiwome,Wolves,4.5,Leon Chiwome
+Eric Moreira,Nott'm Forest,4.5,Eric Moreira
+Luis Santos,West Ham,5.0,Luis Santos
+Joe Hodge,Wolves,4.5,Joe Hodge
+Harrison Armstrong,Everton,4.5,Harrison Armstrong
+Carney Chukwuemeka,Chelsea,5.0,Carney Chukwuemeka
+Tom King,Wolves,4.0,Tom King
+Wout Faes,Leicester,4.0,Wout Faes
+Leny Yoro,Man Utd,4.5,Leny Yoro
+Pedro Neto,Chelsea,6.5,Pedro Neto
+Ian Maatsen,Aston Villa,5.0,Ian Maatsen
+Harry Winks,Leicester,4.5,Harry Winks
+Mads Rasmussen,Brentford,4.5,Mads Rasmussen
+Jurriën Timber,Arsenal,5.5,Jurriën Timber
+Saša Kalajdžić,Wolves,5.0,Saša Kalajdžić
+Anthony Elanga,Nott'm Forest,5.5,Anthony Elanga
+Julio Enciso,Brighton,5.5,Julio Enciso
+Naouirou Ahamada,Crystal Palace,4.5,Naouirou Ahamada
+Jeremy Morante,Brighton,5.0,Jeremy Morante
+Vladimír Coufal,West Ham,4.5,Vladimír Coufal
+Marc Saseta,Chelsea,5.0,Marc Saseta
+Toti Gomes,Wolves,4.5,Toti Gomes
+Cristian Romero,Spurs,5.0,Cristian Romero
+Dan Burn,Newcastle,4.5,Dan Burn
+Destiny Udogie,Spurs,5.0,Destiny Udogie
+Jordan Pickford,Everton,5.0,Jordan Pickford
+Boubacar Traoré,Wolves,5.0,Boubacar Traoré
+Stefan Maquieira,Liverpool,4.5,Stefan Maquieira
+Mikkel Damsgaard,Brentford,5.0,Mikkel Damsgaard
+Luis Díaz,Liverpool,7.5,Luis Díaz
+Enzo Barrenechea,Aston Villa,5.0,Enzo Barrenechea
+Carlos Morais,Fulham,5.0,Carlos Morais
+Pervis Estupiñán,Brighton,5.0,Pervis Estupiñán
+James Milner,Brighton,5.0,James Milner
+Ryan Trevitt,Brentford,4.5,Ryan Trevitt
+Enzo Fernández,Chelsea,5.0,Enzo Fernández
+Luke Shaw,Man Utd,5.0,Luke Shaw
+Fábio Carvalho,Brentford,5.0,Fábio Carvalho
+Jérémy Doku,Man City,6.5,Jérémy Doku
+Marcus Bettinelli,Chelsea,4.0,Marcus Bettinelli
+Alisson Becker,Liverpool,5.5,Alisson Becker
+Aaron Hickey,Brentford,4.5,Aaron Hickey
+Alex McCarthy,Southampton,4.5,Alex McCarthy
+Neal Maupay,Everton,5.0,Neal Maupay
+Steven Benda,Fulham,4.0,Steven Benda
+Dean Henderson,Crystal Palace,4.5,Dean Henderson
+Ki-Jana Hoever,Wolves,4.0,Ki-Jana Hoever
+Cheick Doucouré,Crystal Palace,5.0,Cheick Doucouré
+Scott McTominay,Man Utd,5.0,Scott McTominay
+Wilfred Ndidi,Leicester,5.0,Wilfred Ndidi
+John Ruddy,Newcastle,4.0,John Ruddy
+Caleb Okoli,Leicester,4.0,Caleb Okoli
+Odysseas Vlachodimos,Newcastle,4.5,Odysseas Vlachodimos
+George Earthy,West Ham,4.5,George Earthy
+Daichi Kamada,Crystal Palace,5.5,Daichi Kamada
+Reece James,Chelsea,5.0,Reece James
+Conor Chaplin,Ipswich,5.5,Conor Chaplin
+Santiago Bueno,Wolves,4.5,Santiago Bueno
+Corrie Ndaba,Ipswich,4.0,Corrie Ndaba
+Kenny Tete,Fulham,4.5,Kenny Tete
+Pablo Sarabia,Wolves,5.5,Pablo Sarabia
+Diogo Silva,Liverpool,7.5,Diogo Silva
+Kortney Hause,Aston Villa,4.0,Kortney Hause
+Liam Delap,Ipswich,5.5,Liam Delap
+Tino Livramento,Newcastle,4.5,Tino Livramento
+Tyler Adams,Bournemouth,5.0,Tyler Adams
+Danilo Oliveira,Nott'm Forest,5.0,Danilo Oliveira
+Jenson Metcalfe,Everton,4.5,Jenson Metcalfe
+Marcus Rashford,Man Utd,7.0,Marcus Rashford
+James Maddison,Spurs,7.5,James Maddison
+Daniel Muñoz,Crystal Palace,5.0,Daniel Muñoz
+Bruno Moura,Newcastle,6.5,Bruno Moura
+Fraser Forster,Spurs,4.5,Fraser Forster
+Elliot Anderson,Nott'm Forest,5.0,Elliot Anderson
+Charlie Taylor,Southampton,4.0,Charlie Taylor
+Bryan Mbeumo,Brentford,7.0,Bryan Mbeumo
+Matty Cash,Aston Villa,4.5,Matty Cash
+Adam Lallana,Southampton,5.0,Adam Lallana
+Sandro Tonali,Newcastle,5.5,Sandro Tonali
+Issa Diop,Fulham,4.5,Issa Diop
+Igor Paulo,Brighton,4.5,Igor Paulo
+Joelinton Lira,Newcastle,6.0,Joelinton Lira
+John McGinn,Aston Villa,5.5,John McGinn
+Oscar Bobb,Man City,5.0,Oscar Bobb
+Pedro Lima,Wolves,4.0,Pedro Lima
+Pierre-Emile Højbjerg,Spurs,5.0,Pierre-Emile Højbjerg
+Nathan Collins,Brentford,4.5,Nathan Collins
+Jesper Lindstrøm,Everton,5.5,Jesper Lindstrøm
+Marc Guéhi,Crystal Palace,4.5,Marc Guéhi
+Mathias Jorgensen,Brentford,4.5,Mathias Jorgensen
+William Osula,Newcastle,5.0,William Osula
+Harry Souttar,Leicester,4.0,Harry Souttar
+Jean-Philippe Mateta,Crystal Palace,7.5,Jean-Philippe Mateta
+Ben Nelson,Leicester,4.0,Ben Nelson
+Bernardo Silva,Man City,6.5,Bernardo Silva
+Filip Jørgensen,Chelsea,4.5,Filip Jørgensen
+David Brooks,Bournemouth,5.0,David Brooks
+Son Heung-min,Spurs,10.0,Son Heung-min
+Solly March,Brighton,6.5,Solly March
+Manor Solomon,Spurs,5.5,Manor Solomon
+Nathaniel Phillips,Liverpool,4.0,Nathaniel Phillips
+Kieran Trippier,Newcastle,6.0,Kieran Trippier
+John Stones,Man City,5.5,John Stones
+Sam Morsy,Ipswich,5.0,Sam Morsy
+Lewis Hall,Newcastle,4.5,Lewis Hall
+Marc Paz,Chelsea,5.0,Marc Paz
+Tom Cannon,Leicester,4.5,Tom Cannon
+Ben Davies,Spurs,4.5,Ben Davies
+Tyler Morton,Liverpool,4.5,Tyler Morton
+Matheus Oliveira,Crystal Palace,4.5,Matheus Oliveira
+Calvin Bassey,Fulham,4.5,Calvin Bassey
+Eddie Nketiah,Arsenal,6.0,Eddie Nketiah
+Andreas Pereira,Fulham,5.5,Andreas Pereira
+Matheus Cunha,Wolves,6.5,Matheus Cunha
+Amadou Onana,Aston Villa,5.0,Amadou Onana
+Morgan Rogers,Aston Villa,5.0,Morgan Rogers
+Reiss Nelson,Arsenal,5.0,Reiss Nelson
+Tosin Adarabioyo,Chelsea,4.5,Tosin Adarabioyo
+Matt Targett,Newcastle,4.0,Matt Targett
+Filip Marschall,Aston Villa,4.0,Filip Marschall
+Jan Hecke,Brighton,4.5,Jan Hecke
+Jean-Clair Todibo,West Ham,4.5,Jean-Clair Todibo
+Chris Mepham,Bournemouth,4.5,Chris Mepham
+Ollie Watkins,Aston Villa,9.0,Ollie Watkins
+Jorge Barreno,Fulham,4.5,Jorge Barreno
+Rico Lewis,Man City,4.5,Rico Lewis
+Julián Zúñiga,Bournemouth,4.5,Julián Zúñiga
+Murillo Santos,Nott'm Forest,4.5,Murillo Santos
+James Tarkowski,Everton,5.0,James Tarkowski
+Joël Veltman,Brighton,4.5,Joël Veltman
+Jaidon Anthony,Bournemouth,4.5,Jaidon Anthony
+Kamaldeen Sulemana,Southampton,5.0,Kamaldeen Sulemana
+Timo Werner,Spurs,6.5,Timo Werner
+Tyrone Mings,Aston Villa,4.5,Tyrone Mings
+Matz Sels,Nott'm Forest,4.5,Matz Sels
+Ryan Yates,Nott'm Forest,5.0,Ryan Yates
+Amad Diallo,Man Utd,5.0,Amad Diallo
+Sam Szmodics,Ipswich,6.0,Sam Szmodics
+Malo Gusto,Chelsea,5.0,Malo Gusto
+Hwang Ui-jo,Nott'm Forest,4.5,Hwang Ui-jo
+Jakub Stolarczyk,Leicester,4.0,Jakub Stolarczyk
+Lloyd Kelly,Newcastle,4.5,Lloyd Kelly
+Valentín Barco,Brighton,4.0,Valentín Barco
+Dean Huijsen,Bournemouth,4.5,Dean Huijsen
+Max Aarons,Bournemouth,4.5,Max Aarons
+Rhys Williams,Liverpool,4.0,Rhys Williams
+Michail Antonio,West Ham,5.5,Michail Antonio
+Ibrahim Osman,Brighton,5.0,Ibrahim Osman
+Lewis Miley,Newcastle,5.0,Lewis Miley
+Nathan Wood-Gordon,Southampton,4.0,Nathan Wood-Gordon
+Rodrigo Carvalho,Fulham,6.0,Rodrigo Carvalho
+Benjamin White,Arsenal,6.5,Benjamin White
+Cameron Burgess,Ipswich,4.0,Cameron Burgess
+Abdul Fatawu,Leicester,5.5,Abdul Fatawu
+Dominik Szoboszlai,Liverpool,6.5,Dominik Szoboszlai
+Tim Iroegbunam,Everton,4.5,Tim Iroegbunam
+Neco Williams,Nott'm Forest,4.5,Neco Williams
+Roméo Lavia,Chelsea,4.5,Roméo Lavia
+Leon Bailey,Aston Villa,6.5,Leon Bailey
+Niclas Füllkrug,West Ham,7.0,Niclas Füllkrug
+Harvey Barnes,Newcastle,6.5,Harvey Barnes
+Brennan Johnson,Spurs,6.5,Brennan Johnson
+Andrew Moran,Brighton,5.0,Andrew Moran
+Harry Maguire,Man Utd,5.0,Harry Maguire
+Mark Travers,Bournemouth,4.5,Mark Travers
+Will Smallbone,Southampton,5.0,Will Smallbone
+Mykhailo Mudryk,Chelsea,6.5,Mykhailo Mudryk
+Hamed Traorè,Bournemouth,4.5,Hamed Traorè
+Stefan Moreno,Man City,5.5,Stefan Moreno
+Renato Veiga,Chelsea,4.5,Renato Veiga
+Eberechi Eze,Crystal Palace,7.0,Eberechi Eze
+Samuel Iling-Junior,Aston Villa,5.5,Samuel Iling-Junior
+Boubacar Kamara,Aston Villa,5.0,Boubacar Kamara
+Ali Al-Hamadi,Ipswich,5.0,Ali Al-Hamadi
+Willy Boly,Nott'm Forest,4.5,Willy Boly
+Carlos Durán,Southampton,5.0,Carlos Durán
+Victor Lindelöf,Man Utd,4.5,Victor Lindelöf
+Ross Barkley,Aston Villa,5.5,Ross Barkley
+James McConnell,Liverpool,4.5,James McConnell
+Kobbie Mainoo,Man Utd,5.5,Kobbie Mainoo
+Adam Armstrong,Southampton,5.5,Adam Armstrong
+Aaron Cresswell,West Ham,4.0,Aaron Cresswell
+Emil Krafth,Newcastle,4.5,Emil Krafth
+Jakub Kiwior,Arsenal,5.0,Jakub Kiwior
+Kristoffer Ajer,Brentford,4.5,Kristoffer Ajer
+Will Hughes,Crystal Palace,5.0,Will Hughes
+David Ozoh,Crystal Palace,4.5,David Ozoh
+Jakub Moder,Brighton,4.5,Jakub Moder
+Cieran Slicker,Ipswich,4.0,Cieran Slicker
+Raheem Sterling,Chelsea,7.0,Raheem Sterling
+Raúl Jiménez,Fulham,5.5,Raúl Jiménez
+Bryan Salvatierra,Spurs,5.0,Bryan Salvatierra
+Myles Lewis-Skelly,Arsenal,4.5,Myles Lewis-Skelly
+Giovani Celso,Spurs,5.0,Giovani Celso
+Tawanda Chirewa,Wolves,4.5,Tawanda Chirewa
+Cameron Humphreys,Ipswich,4.5,Cameron Humphreys
+Ashley Young,Everton,4.5,Ashley Young
+James Bree,Southampton,4.0,James Bree
+Jordan Ayew,Leicester,5.5,Jordan Ayew
+Oliver Skipp,Leicester,5.0,Oliver Skipp
+Joachim Andersen,Fulham,4.5,Joachim Andersen
+Roman Dixon,Everton,4.0,Roman Dixon
+Lesley Ugochukwu,Southampton,4.5,Lesley Ugochukwu
+Issa Kaboré,Man City,4.5,Issa Kaboré
+Sepp Berg,Brentford,4.0,Sepp Berg
+Asmir Begovic,Everton,4.0,Asmir Begovic
+Álex Lopera,Nott'm Forest,4.5,Álex Lopera
+Jens Cajuste,Ipswich,4.5,Jens Cajuste
+João Sequeira,Chelsea,6.5,João Sequeira
+Francisco Barbosa,Bournemouth,6.0,Francisco Barbosa
+Ilkay Gündogan,Man City,6.5,Ilkay Gündogan
+Georginio Rutter,Brighton,5.5,Georginio Rutter
+Mateus Fernandes,Southampton,5.0,Mateus Fernandes
+Ramón Sosa,Nott'm Forest,5.5,Ramón Sosa
+Sander Berge,Fulham,5.0,Sander Berge
