@@ -1,4 +1,4 @@
-# Fantasy Premier League App with built in Model for prediction
+# Fantasy Premier League App with built in Model for predicting players fantasy points
 
 ## To start frontend:
 
