@@ -65,7 +65,8 @@ def top_players():
 @app.route('/fetch_player_data', methods=['GET'])
 def fetch_player_data():
     fpl_url = 'https://fantasy.premierleague.com/api/bootstrap-static/'
-    response = requests.get(fpl_url)
+    response = requests.get(fpl_url, verify=False)
+
 
     if response.status_code == 200:
         data = response.json()
@@ -96,11 +97,11 @@ def fetch_player_data():
 def fetch_weekly_data(gameweek_id):
     # Get live data for a specific gameweek
     fpl_live_url = f'https://fantasy.premierleague.com/api/event/{gameweek_id}/live/'
-    live_response = requests.get(fpl_live_url)
+    live_response = requests.get(fpl_live_url, verify=False)
 
     # Get static player data (to map player names and teams)
     fpl_static_url = 'https://fantasy.premierleague.com/api/bootstrap-static/'
-    static_response = requests.get(fpl_static_url)
+    static_response = requests.get(fpl_static_url, verify=False)
 
     if live_response.status_code == 200 and static_response.status_code == 200:
         live_data = live_response.json()

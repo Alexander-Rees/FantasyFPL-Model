@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import "./Team.css";
 
 const Team = () => {
   const [team, setTeam] = useState(null);
-  const [players, setPlayers] = useState([]);
+  const [totalPlayers, setTotalPlayers] = useState([]);
+  const [weeklyPlayers, setWeeklyPlayers] = useState([]);
   const [filteredPlayers, setFilteredPlayers] = useState([]);
-  const [playerId, setPlayerId] = useState("");
   const [optimalTeam, setOptimalTeam] = useState([]);
   const [topPlayers, setTopPlayers] = useState(null);
   const [sortCriteria, setSortCriteria] = useState("total_points");
@@ -28,28 +29,17 @@ const Team = () => {
     axios
       .get("/api/players/total")
       .then((response) => {
-        console.log("Players fetched:", response.data);
-        setPlayers(response.data);
+        setTotalPlayers(response.data);
       })
-      .catch((error) =>
-        console.error(
-          "Error fetching players:",
-          error.response ? error.response.data : error.message
-        )
-      );
+      .catch((error) => console.error("Error fetching players:", error));
+
     const gameweek = 1;
     axios
       .get(`/api/players/weekly/${gameweek}`)
       .then((response) => {
-        console.log("Weekly players fetched:", response.data);
-        setPlayers(response.data);
+        setWeeklyPlayers(response.data);
       })
-      .catch((error) =>
-        console.error(
-          "Error fetching weekly players:",
-          error.response ? error.response.data : error.message
-        )
-      );
+      .catch((error) => console.error("Error fetching weekly players:", error));
 
     axios
       .get("/api/team/optimal_team")
@@ -62,8 +52,10 @@ const Team = () => {
       .catch((error) => console.error("Error fetching top players:", error));
   }, []);
 
+  // Handle search and filtering
   const handleSearch = () => {
-    const result = players
+    const combinedPlayers = [...totalPlayers, ...weeklyPlayers];
+    const result = combinedPlayers
       .filter(
         (player) =>
           selectedPosition === "" ||
@@ -73,14 +65,21 @@ const Team = () => {
     setFilteredPlayers(result);
   };
 
-  const handleAddPlayer = () => {
+  // Handle adding a player to the team by passing the full player object
+  const handleAddPlayer = (playerId) => {
     axios
-      .post("/api/team?userId=1", { id: playerId })
+      .post("/api/team?userId=1", { playerId }) // Pass the playerId
       .then((response) => {
         setTeam(response.data);
         setMessage("Player added successfully!");
       })
-      .catch((error) => setMessage("Error adding player to the team."));
+      .catch((error) => {
+        console.error(
+          "There was an error adding the player to the team!",
+          error
+        );
+        setMessage("Error adding player to the team.");
+      });
   };
 
   const handleReturn = () => {
@@ -88,10 +87,13 @@ const Team = () => {
   };
 
   return (
-    <div>
-      <h2>Your Team</h2>
+    <div className="team-container">
+      <div className="team-header">
+        <h2>Your Team</h2>
+      </div>
+
       {team ? (
-        <div>
+        <div className="team-section">
           <h3>{team.name}</h3>
           <p>Budget Remaining: ${team.budget}</p>
           <ul>
@@ -107,15 +109,12 @@ const Team = () => {
         <p>Loading team...</p>
       )}
 
-      <div>
+      <div className="filter-sort-section">
         <h3>Sort and Filter Players</h3>
         <label>Filter by Position: </label>
         <select
           value={selectedPosition}
-          onChange={(e) => {
-            console.log("Position selected:", e.target.value);
-            setSelectedPosition(e.target.value);
-          }}
+          onChange={(e) => setSelectedPosition(e.target.value)}
         >
           <option value="">All Positions</option>
           <option value="1">Goalkeeper</option>
@@ -126,26 +125,30 @@ const Team = () => {
 
         <select
           value={sortCriteria}
-          onChange={(e) => {
-            console.log("Sort criteria selected:", e.target.value);
-            setSortCriteria(e.target.value);
-          }}
+          onChange={(e) => setSortCriteria(e.target.value)}
         >
           <option value="total_points">Total Points</option>
           <option value="value">Value</option>
           <option value="goals_scored">Goals Scored</option>
           <option value="assists">Assists</option>
+          <option value="weeklyPoints">Weekly Points</option>
         </select>
 
-        {/* Button to trigger search */}
         <button onClick={handleSearch}>Search</button>
 
         <ul>
           {filteredPlayers.length > 0 ? (
             filteredPlayers.map((player) => (
-              <li key={player.id}>
-                {player.name} - ${player.value}M (Points: {player.total_points},
+              <li key={player.id} className="player-list-item">
+                {player.name} - ${player.value}M (Total Points:{" "}
+                {player.total_points}, Weekly Points: {player.weeklyPoints},
                 Position: {player.position})
+                <button
+                  className="add-player-button"
+                  onClick={() => handleAddPlayer(player)} // Pass full player object
+                >
+                  Add to Team
+                </button>
               </li>
             ))
           ) : (
@@ -154,8 +157,8 @@ const Team = () => {
         </ul>
       </div>
 
-      <div>
-        <h3>Optimal Team (From Flask API)</h3>
+      <div className="optimal-team-section">
+        <h3>Optimal Team</h3>
         {optimalTeam.length > 0 ? (
           <ul>
             {optimalTeam.map((player, index) => (
@@ -171,7 +174,7 @@ const Team = () => {
         )}
       </div>
 
-      <div>
+      <div className="highest-predicted-section">
         <h3>Highest predicted points next gameweek</h3>
         {topPlayers ? (
           <ul>
@@ -215,15 +218,7 @@ const Team = () => {
 
       {message && <p>{message}</p>}
 
-      <button
-        onClick={handleReturn}
-        style={{
-          marginTop: "20px",
-          padding: "10px 20px",
-          fontSize: "16px",
-          cursor: "pointer",
-        }}
-      >
+      <button onClick={handleReturn} className="return-button">
         Return to Dashboard
       </button>
     </div>

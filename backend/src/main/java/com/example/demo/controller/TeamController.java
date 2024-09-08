@@ -10,19 +10,19 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/team")
 public class TeamController {
+
     @Autowired
     private TeamService teamService;
-
-    // Existing Endpoints
 
     @GetMapping
     public Team getTeam(@RequestParam Long userId) {
         return teamService.getTeamByUserId(userId);
     }
 
+    // Update to only accept playerId instead of full Player object
     @PostMapping
-    public Team addPlayerToTeam(@RequestParam Long userId, @RequestBody Player player) {
-        return teamService.addPlayerToTeam(userId, player);
+    public Team addPlayerToTeam(@RequestParam Long userId, @RequestParam Long playerId) {
+        return teamService.addPlayerToTeam(userId, playerId);
     }
 
     @DeleteMapping("/{playerId}")
@@ -35,15 +35,11 @@ public class TeamController {
         return teamService.createTeam(createTeamDTO);
     }
 
-    // New Endpoints to Integrate with Flask API
-
-    // Endpoint to get the optimal team from the Flask API
     @GetMapping("/optimal_team")
     public String getOptimalTeam() {
         return teamService.getOptimalTeam();
     }
 
-    // Endpoint to get top players by position from the Flask API
     @GetMapping("/top_players")
     public String getTopPlayers() {
         return teamService.getTopPlayers();

@@ -1,0 +1,137 @@
+/* Team.css */
+
+/* Main container */
+.team-container {
+  margin: 20px;
+  padding: 20px;
+  border-radius: 8px;
+  background-color: #f4f4f9;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  max-width: 900px;
+  margin: 0 auto;
+  font-family: 'Arial', sans-serif;
+}
+
+/* Header */
+.team-header h2 {
+  font-size: 28px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* Team section */
+.team-section {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.team-section h3 {
+  font-size: 22px;
+  margin-bottom: 10px;
+}
+
+.team-section ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.team-section ul li {
+  padding: 8px 10px;
+  background-color: #e8e8f0;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+
+.team-section ul li strong {
+  font-weight: bold;
+}
+
+.team-section ul li span {
+  font-size: 14px;
+  color: #555;
+}
+
+/* Filter and Sort section */
+.filter-sort-section {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.filter-sort-section h3 {
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+.filter-sort-section select {
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  margin-right: 10px;
+}
+
+.filter-sort-section button {
+  padding: 10px 20px;
+  background-color: #007bff;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 10px;
+}
+
+.filter-sort-section button:hover {
+  background-color: #0056b3;
+}
+
+/* Optimal team section */
+.optimal-team-section ul li {
+  padding: 8px 10px;
+  background-color: #f1f1f1;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+
+.optimal-team-section ul li strong {
+  color: #000;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .team-container {
+    padding: 10px;
+  }
+}
+
+/* Add to Team button */
+.add-player-button {
+  margin-left: 10px;
+  padding: 5px 10px;
+  background-color: #28a745;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.add-player-button:hover {
+  background-color: #218838;
+}
+
+/* Player list styling */
+.player-list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background-color: #f8f9fa;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
