@@ -9,8 +9,6 @@ import com.example.demo.repository.TeamRepository;
 import com.example.demo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,8 +25,6 @@ public class TeamService {
     @Autowired
     private PlayerRepository playerRepository;
 
-    @Autowired
-    private RestTemplate restTemplate;
 
     public Team getTeamByUserId(Long userId) {
         return teamRepository.findByUserId(userId);
@@ -36,36 +32,48 @@ public class TeamService {
 
     // Updated method to accept playerId instead of full Player object
     public Team addPlayerToTeam(Long userId, Long playerId) {
-        Team team = teamRepository.findByUserId(userId);
+        Team team = getTeamByUserId(userId);
+        Player player = playerRepository.findById(playerId).orElseThrow(() -> new RuntimeException("Player not found"));
 
-        if (team == null) {
-            throw new IllegalArgumentException("Team not found for the user");
+        // Check if player is already on the team
+        if (team.getPlayers().contains(player)) {
+            throw new RuntimeException("Player is already in the team");
         }
 
-        // Fetch player by playerId
-        Player player = playerRepository.findById(playerId)
-                .orElseThrow(() -> new IllegalArgumentException("Player not found"));
-
-        // Add player to team if not already present
-        if (!team.getPlayers().contains(player)) {
-            team.getPlayers().add(player);
-        } else {
-            throw new IllegalArgumentException("Player already in the team");
+        // Check if team has enough budget
+        if (team.getBudget() < player.getValue()) {
+            throw new RuntimeException("Not enough budget to add this player");
         }
 
-        // Save and return the updated team
+        // Add the player to the team
+        team.getPlayers().add(player);
+        team.setBudget(team.getBudget() - player.getValue());
+
+        // Save the updated team
         return teamRepository.save(team);
     }
 
     public Team removePlayerFromTeam(Long userId, Long playerId) {
         Team team = teamRepository.findByUserId(userId);
 
-        if (team != null) {
-            team.getPlayers().removeIf(player -> player.getId().equals(playerId));
-            return teamRepository.save(team);
+        if (team == null) {
+            throw new IllegalArgumentException("Team not found for the user");
         }
 
-        return null;
+        // Find the player to be removed
+        Player playerToRemove = playerRepository.findById(playerId)
+                .orElseThrow(() -> new IllegalArgumentException("Player not found"));
+
+        // Remove player from team if present
+        boolean removed = team.getPlayers().removeIf(player -> player.getId().equals(playerId));
+
+        if (removed) {
+            // Refund the budget
+            team.setBudget(team.getBudget() + playerToRemove.getValue());
+            return teamRepository.save(team);
+        } else {
+            throw new IllegalArgumentException("Player not found in the team");
+        }
     }
 
     public Team createTeam(CreateTeamDTO createTeamDTO) {
@@ -86,14 +94,14 @@ public class TeamService {
     }
 
     public String getOptimalTeam() {
-        String flaskApiUrl = "http://127.0.0.1:5000/optimal_team";
-        ResponseEntity<String> response = restTemplate.getForEntity(flaskApiUrl, String.class);
-        return response.getBody();
+        // TODO: Implement team optimization logic using database data
+        // This should use the player data from the database and apply optimization algorithms
+        return "Team optimization feature coming soon - will use database player data";
     }
 
     public String getTopPlayers() {
-        String flaskApiUrl = "http://127.0.0.1:5000/top_players";
-        ResponseEntity<String> response = restTemplate.getForEntity(flaskApiUrl, String.class);
-        return response.getBody();
+        // TODO: Implement top players logic using database data
+        // This should query the database for top performing players
+        return "Top players feature coming soon - will use database player data";
     }
 }

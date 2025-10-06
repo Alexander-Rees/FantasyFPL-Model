@@ -1,0 +1,54 @@
+name: FPL Data Ingestion
+
+on:
+  schedule:
+    # Run at 05:15 and 17:15 UTC daily
+    - cron: '15 5,17 * * *'
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+    
+    - name: Install dependencies
+      run: |
+        cd flask-api
+        pip install -r requirements.txt
+        pip install mysql-connector-python requests pandas numpy scikit-learn
+    
+    - name: Clone FPL-Elo-Insights
+      run: |
+        git clone https://github.com/olbauday/FPL-Elo-Insights.git temp-elo-data
+        echo "FPL-Elo-Insights cloned successfully"
+    
+    - name: Run data ingestion
+      env:
+        DB_HOST: ${{ secrets.DB_HOST }}
+        DB_USER: ${{ secrets.DB_USER }}
+        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        DB_NAME: ${{ secrets.DB_NAME }}
+      run: |
+        cd flask-api
+        python scripts/ingest_elo_and_fpl.py
+    
+    - name: Clean up
+      if: always()
+      run: |
+        rm -rf temp-elo-data
+    
+    - name: Notify on failure
+      if: failure()
+      run: |
+        echo "Data ingestion failed at $(date)"
+        # Add Slack webhook notification here if desired

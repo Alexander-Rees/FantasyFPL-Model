@@ -1,17 +1,24 @@
 package com.example.demo.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PlayerDTO {
     private Long id;
     private String name;
     private String team;
-    private boolean injured;
-    private int position;
-    private double value;
-    private int totalPoints;
-    private int weeklyPoints;
+    private String position; // Ensure consistency with the Player model
+    private double value; // Player's current value (cost)
+
+    @JsonProperty("total_points")
+    private int totalPoints; // Total points for the season
+
+    @JsonProperty("event_points")
+    private int weeklyPoints; // Points for the most recent gameweek
+
+    @JsonProperty("fplId")
+    private Long fplId; // Official FPL player ID
 
     // Getters and setters
     public Long getId() {
@@ -38,19 +45,11 @@ public class PlayerDTO {
         this.team = team;
     }
 
-    public boolean isInjured() {
-        return injured;
-    }
-
-    public void setInjured(boolean injured) {
-        this.injured = injured;
-    }
-
-    public int getPosition() {
+    public String getPosition() {
         return position;
     }
 
-    public void setPosition(int position) {
+    public void setPosition(String position) {
         this.position = position;
     }
 
@@ -76,5 +75,13 @@ public class PlayerDTO {
 
     public void setWeeklyPoints(int weeklyPoints) {
         this.weeklyPoints = weeklyPoints;
+    }
+
+    public Long getFplId() {
+        return fplId;
+    }
+
+    public void setFplId(Long fplId) {
+        this.fplId = fplId;
     }
 }

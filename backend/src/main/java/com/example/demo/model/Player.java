@@ -18,7 +18,12 @@ public class Player {
     private String name;
     private String position;
     private String team;
-    private int points;
+    private Long fplId; // FPL API player ID
+
+    // Default values for numeric fields
+    private double value = 0.0;
+    private int totalPoints = 0;
+    private int weeklyPoints = 0;
 
     @ManyToMany(mappedBy = "players")
     @JsonBackReference
@@ -29,12 +34,25 @@ public class Player {
     }
 
     // Constructor with parameters
-    public Player(Long id, String name, int points, String position, String team) {
+    public Player(Long id, String name, String position, String team, double value, int totalPoints, int weeklyPoints) {
         this.id = id;
         this.name = name;
-        this.points = points;
         this.position = position;
         this.team = team;
+        this.value = value;
+        this.totalPoints = totalPoints;
+        this.weeklyPoints = weeklyPoints;
+    }
+    
+    public Player(Long id, String name, String position, String team, Long fplId, double value, int totalPoints, int weeklyPoints) {
+        this.id = id;
+        this.name = name;
+        this.position = position;
+        this.team = team;
+        this.fplId = fplId;
+        this.value = value;
+        this.totalPoints = totalPoints;
+        this.weeklyPoints = weeklyPoints;
     }
 
     // Getters and setters
@@ -70,12 +88,28 @@ public class Player {
         this.team = team;
     }
 
-    public int getPoints() {
-        return points;
+    public double getValue() {
+        return value;
     }
 
-    public void setPoints(int points) {
-        this.points = points;
+    public void setValue(double value) {
+        this.value = value;
+    }
+
+    public int getTotalPoints() {
+        return totalPoints;
+    }
+
+    public void setTotalPoints(int totalPoints) {
+        this.totalPoints = totalPoints;
+    }
+
+    public int getWeeklyPoints() {
+        return weeklyPoints;
+    }
+
+    public void setWeeklyPoints(int weeklyPoints) {
+        this.weeklyPoints = weeklyPoints;
     }
 
     public List<Team> getTeams() {
@@ -84,5 +118,13 @@ public class Player {
 
     public void setTeams(List<Team> teams) {
         this.teams = teams;
+    }
+    
+    public Long getFplId() {
+        return fplId;
+    }
+    
+    public void setFplId(Long fplId) {
+        this.fplId = fplId;
     }
 }

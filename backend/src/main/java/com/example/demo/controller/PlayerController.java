@@ -14,15 +14,9 @@ public class PlayerController {
     @Autowired
     private PlayerDataService playerDataService;
 
-    // Endpoint to fetch weekly player data for a specific gameweek
-    @GetMapping("/weekly/{gameweek}")
-    public List<PlayerDTO> getWeeklyPlayerData(@PathVariable int gameweek) {
-        return playerDataService.fetchWeeklyPlayerData(gameweek);
-    }
-
-    // Endpoint to fetch total player data (across all gameweeks)
-    @GetMapping("/total")
-    public List<PlayerDTO> getTotalPlayerData() {
-        return playerDataService.fetchTotalPlayerData();
+    // Endpoint to fetch all player data from database
+    @GetMapping
+    public List<PlayerDTO> getPlayerData() {
+        return playerDataService.getAllPlayers();
     }
 }

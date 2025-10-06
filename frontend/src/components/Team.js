@@ -5,8 +5,7 @@ import "./Team.css";
 
 const Team = () => {
   const [team, setTeam] = useState(null);
-  const [totalPlayers, setTotalPlayers] = useState([]);
-  const [weeklyPlayers, setWeeklyPlayers] = useState([]);
+  const [players, setPlayers] = useState([]);
   const [filteredPlayers, setFilteredPlayers] = useState([]);
   const [optimalTeam, setOptimalTeam] = useState([]);
   const [topPlayers, setTopPlayers] = useState(null);
@@ -27,19 +26,12 @@ const Team = () => {
       );
 
     axios
-      .get("/api/players/total")
+      .get("/api/players")
       .then((response) => {
-        setTotalPlayers(response.data);
+        console.log("Player data:", response.data); // Log the data to verify the IDs and structure
+        setPlayers(response.data);
       })
       .catch((error) => console.error("Error fetching players:", error));
-
-    const gameweek = 1;
-    axios
-      .get(`/api/players/weekly/${gameweek}`)
-      .then((response) => {
-        setWeeklyPlayers(response.data);
-      })
-      .catch((error) => console.error("Error fetching weekly players:", error));
 
     axios
       .get("/api/team/optimal_team")
@@ -52,26 +44,33 @@ const Team = () => {
       .catch((error) => console.error("Error fetching top players:", error));
   }, []);
 
-  // Handle search and filtering
   const handleSearch = () => {
-    const combinedPlayers = [...totalPlayers, ...weeklyPlayers];
-    const result = combinedPlayers
-      .filter(
-        (player) =>
-          selectedPosition === "" ||
-          player.position === parseInt(selectedPosition)
-      )
+    const result = players
+      .filter((player) => {
+        if (selectedPosition !== "") {
+          return player.position === selectedPosition;
+        }
+        return true;
+      })
       .sort((a, b) => (b[sortCriteria] || 0) - (a[sortCriteria] || 0));
+
     setFilteredPlayers(result);
   };
 
-  // Handle adding a player to the team by passing the full player object
-  const handleAddPlayer = (playerId) => {
+  const handleAddPlayer = (playerId, playerValue) => {
+    console.log("Adding Player ID:", playerId, "with Value:", playerValue); // Log the player ID and value
+
+    if (team.budget < playerValue) {
+      setMessage("Not enough budget to add this player.");
+      return;
+    }
+
     axios
-      .post("/api/team?userId=1", { playerId }) // Pass the playerId
+      .post("/api/team", null, { params: { userId: 1, playerId } }) // Replace '1' with the actual user ID
       .then((response) => {
-        setTeam(response.data);
+        setTeam(response.data); // Update team state with the updated team after adding the player
         setMessage("Player added successfully!");
+        console.log("Updated team:", response.data); // Log the updated team data
       })
       .catch((error) => {
         console.error(
@@ -111,7 +110,7 @@ const Team = () => {
 
       <div className="filter-sort-section">
         <h3>Sort and Filter Players</h3>
-        <label>Filter by Position: </label>
+
         <select
           value={selectedPosition}
           onChange={(e) => setSelectedPosition(e.target.value)}
@@ -131,86 +130,72 @@ const Team = () => {
           <option value="value">Value</option>
           <option value="goals_scored">Goals Scored</option>
           <option value="assists">Assists</option>
-          <option value="weeklyPoints">Weekly Points</option>
+          <option value="event_points">Weekly Points</option>
         </select>
 
         <button onClick={handleSearch}>Search</button>
 
-        <ul>
-          {filteredPlayers.length > 0 ? (
-            filteredPlayers.map((player) => (
-              <li key={player.id} className="player-list-item">
-                {player.name} - ${player.value}M (Total Points:{" "}
-                {player.total_points}, Weekly Points: {player.weeklyPoints},
-                Position: {player.position})
-                <button
-                  className="add-player-button"
-                  onClick={() => handleAddPlayer(player)} // Pass full player object
-                >
-                  Add to Team
-                </button>
-              </li>
-            ))
-          ) : (
-            <p>No players found. Adjust the filters or click search again.</p>
-          )}
-        </ul>
-      </div>
-
-      <div className="optimal-team-section">
-        <h3>Optimal Team</h3>
-        {optimalTeam.length > 0 ? (
+        <div className="scrollable-container">
           <ul>
-            {optimalTeam.map((player, index) => (
-              <li key={index}>
-                {player.name} - {player.team_x} (Position: {player.position},
-                Predicted Points: {player.predicted_points}, Value: $
-                {player.value}M)
-              </li>
-            ))}
+            {filteredPlayers.length > 0 ? (
+              filteredPlayers.map((player) => (
+                <li key={player.id}>
+                  {player.name} - Position: {player.position}, Team:{" "}
+                  {player.team}, Value: ${player.value}M, Total Points:{" "}
+                  {player.total_points}, Weekly Points: {player.event_points}
+                  <button
+                    onClick={() => handleAddPlayer(player.id, player.value)}
+                  >
+                    Add to Team
+                  </button>
+                </li>
+              ))
+            ) : (
+              <p>No players found. Adjust filters or search again.</p>
+            )}
           </ul>
-        ) : (
-          <p>Loading optimal team...</p>
-        )}
+        </div>
       </div>
 
       <div className="highest-predicted-section">
-        <h3>Highest predicted points next gameweek</h3>
+        <h3>Highest Predicted Points Next Gameweek</h3>
         {topPlayers ? (
-          <ul>
-            <p>Top Goalkeepers: </p>
-            {topPlayers.GK &&
-              topPlayers.GK.map((player, index) => (
-                <li key={index}>
-                  {player.name} - {player.team_x} (Predicted Points:{" "}
-                  {player.predicted_points})
-                </li>
-              ))}
-            <p>Top Defenders: </p>
-            {topPlayers.DEF &&
-              topPlayers.DEF.map((player, index) => (
-                <li key={index}>
-                  {player.name} - {player.team_x} (Predicted Points:{" "}
-                  {player.predicted_points})
-                </li>
-              ))}
-            <p>Top Midfielders: </p>
-            {topPlayers.MID &&
-              topPlayers.MID.map((player, index) => (
-                <li key={index}>
-                  {player.name} - {player.team_x} (Predicted Points:{" "}
-                  {player.predicted_points})
-                </li>
-              ))}
-            <p>Top Forwards: </p>
-            {topPlayers.FWD &&
-              topPlayers.FWD.map((player, index) => (
-                <li key={index}>
-                  {player.name} - {player.team_x} (Predicted Points:{" "}
-                  {player.predicted_points})
-                </li>
-              ))}
-          </ul>
+          <div className="scrollable-container">
+            <ul>
+              <p>Top Goalkeepers: </p>
+              {topPlayers.GK &&
+                topPlayers.GK.slice(0, 10).map((player, index) => (
+                  <li key={index}>
+                    {player.name} - {player.team_x} (Predicted Points:{" "}
+                    {player.predicted_points})
+                  </li>
+                ))}
+              <p>Top Defenders: </p>
+              {topPlayers.DEF &&
+                topPlayers.DEF.slice(0, 10).map((player, index) => (
+                  <li key={index}>
+                    {player.name} - {player.team_x} (Predicted Points:{" "}
+                    {player.predicted_points})
+                  </li>
+                ))}
+              <p>Top Midfielders: </p>
+              {topPlayers.MID &&
+                topPlayers.MID.slice(0, 10).map((player, index) => (
+                  <li key={index}>
+                    {player.name} - {player.team_x} (Predicted Points:{" "}
+                    {player.predicted_points})
+                  </li>
+                ))}
+              <p>Top Forwards: </p>
+              {topPlayers.FWD &&
+                topPlayers.FWD.slice(0, 10).map((player, index) => (
+                  <li key={index}>
+                    {player.name} - {player.team_x} (Predicted Points:{" "}
+                    {player.predicted_points})
+                  </li>
+                ))}
+            </ul>
+          </div>
         ) : (
           <p>Loading top players...</p>
         )}
