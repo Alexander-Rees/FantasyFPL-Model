@@ -2,3 +2,5 @@ Flask
 pandas
 joblib
 PuLP
+redis
+prometheus-client

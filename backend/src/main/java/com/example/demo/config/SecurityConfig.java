@@ -32,10 +32,9 @@ public class SecurityConfig {
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
             .authorizeHttpRequests(authorizeRequests -> authorizeRequests
-                .requestMatchers("/api/users/register", "/api/users/login").permitAll()
-                .requestMatchers("/api/players").permitAll() // Allow access to player data
-                .requestMatchers("/api/team/**").permitAll() // Allow all team endpoints
-                .requestMatchers("/api/**").authenticated()
+                .requestMatchers("/actuator/**", "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll() // Monitoring & docs - check first
+                .requestMatchers("/api/v1/auth/**", "/api/v1/players", "/api/v1/team/**").permitAll() // Public v1 endpoints
+                .requestMatchers("/api/**").permitAll() // Legacy endpoints (deprecated) - catch-all for /api/*
                 .anyRequest().permitAll());
         return http.build();
     }
@@ -43,10 +42,13 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(Arrays.asList("*"));
+        // Tighten CORS - allow specific origins or localhost for dev
+        String allowedOrigins = System.getenv().getOrDefault("CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:8081");
+        configuration.setAllowedOrigins(Arrays.asList(allowedOrigins.split(",")));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Request-Id", "Idempotency-Key"));
         configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L);
         
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

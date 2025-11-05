@@ -1,0 +1,8 @@
+# build artifacts
+/target
+/.mvn
+HELP.md
+*.iml
+.git
+.gitignore
+.env
