@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { logoutUser } from '../actions/authActions';
 import './TeamManagement.css';
@@ -25,13 +25,9 @@ const TeamManagement = () => {
   const { user, isAuthenticated } = useSelector(state => state.auth);
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    if (isAuthenticated && user) {
-      fetchTeamData();
-    }
-  }, [isAuthenticated, user]);
-
-  const fetchTeamData = async () => {
+  const fetchTeamData = useCallback(async () => {
+    if (!user) return;
+    
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
@@ -56,7 +52,13 @@ const TeamManagement = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      fetchTeamData();
+    }
+  }, [isAuthenticated, user, fetchTeamData]);
 
   const handleImportTeam = async (e) => {
     e.preventDefault();
