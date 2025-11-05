@@ -34,15 +34,16 @@ class PlayerControllerIntegrationTest {
     void setUp() {
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
         
-        // Create test data
+        // Create test data - ensure schema is created first
         Player testPlayer = new Player();
         testPlayer.setName("Test Player");
         testPlayer.setPosition("MID");
         testPlayer.setTeam("Arsenal");
-        testPlayer.setValue(50);
+        testPlayer.setValue(50.0);
         testPlayer.setTotalPoints(100);
         testPlayer.setWeeklyPoints(10);
-        playerRepository.save(testPlayer);
+        testPlayer.setFplId(1L);
+        playerRepository.saveAndFlush(testPlayer);
     }
 
     @Test
