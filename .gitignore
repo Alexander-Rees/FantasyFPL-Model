@@ -27,4 +27,27 @@ yarn-error.log*
 
 # backend 
 /backend/target
+/backend/.mvn
+
+# flask-api
 flask-api/FPL-Elo-Insights/
+flask-api/__pycache__/
+flask-api/*.pyc
+flask-api/venv/
+
+# frontend
+/frontend/build
+/frontend/node_modules
+
+# Environment files
+.env
+.env.local
+
+# IDE
+*.iml
+.idea/
+.vscode/
+
+# Logs
+logs/
+*.log

@@ -19,6 +19,7 @@ Version: 3.0.0
 """
 
 from flask import Flask, jsonify, request
+import os
 from flask_cors import CORS
 import requests
 import pandas as pd
@@ -35,6 +36,8 @@ import hashlib
 import jwt
 from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
+from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
+from cache_utils import cache_result, get_redis_client
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -45,13 +48,13 @@ app = Flask(__name__)
 CORS(app)  # Enable CORS for frontend integration
 app.config['SECRET_KEY'] = 'your-secret-key-change-in-production'
 
-# Database Configuration
+# Database Configuration from env vars
 DB_CONFIG = {
-    'host': 'localhost',
-    'database': 'fantasy_soccer',
-    'user': 'root',
-    'password': 'NewPassword',
-    'port': 3306
+    'host': os.getenv('DB_HOST', 'localhost'),
+    'database': os.getenv('DB_NAME', 'fantasy_soccer'),
+    'user': os.getenv('DB_USER', 'root'),
+    'password': os.getenv('DB_PASSWORD', 'NewPassword'),
+    'port': int(os.getenv('DB_PORT', '3306'))
 }
 
 # FPL API Configuration
@@ -661,6 +664,48 @@ def optimize_team(current_user_id):
         logger.error(f"Error in optimize_team: {e}")
         return jsonify({'error': str(e)}), 500
 
+# Prometheus metrics
+request_count = Counter('flask_requests_total', 'Total requests', ['route', 'code'])
+request_latency = Histogram('flask_request_latency_seconds', 'Request latency', ['route'])
+cache_hits = Counter('cache_hits_total', 'Cache hits', ['cache_name'])
+cache_misses = Counter('cache_misses_total', 'Cache misses', ['cache_name'])
+
+# Health endpoint
+@app.route('/health', methods=['GET'])
+def health():
+    start = time.time()
+    status = {"status": "ok"}
+    
+    # Check DB
+    try:
+        conn = get_db_connection()
+        if conn:
+            conn.close()
+            status["database"] = "ok"
+        else:
+            status["database"] = "error"
+    except Exception as e:
+        status["database"] = f"error: {str(e)}"
+    
+    # Check Redis
+    try:
+        client = get_redis_client()
+        if client:
+            client.ping()
+            status["redis"] = "ok"
+        else:
+            status["redis"] = "unavailable"
+    except Exception as e:
+        status["redis"] = f"error: {str(e)}"
+    
+    status["response_time_ms"] = int((time.time() - start) * 1000)
+    return jsonify(status), 200
+
+# Metrics endpoint
+@app.route('/metrics', methods=['GET'])
+def metrics():
+    return generate_latest(), 200, {'Content-Type': CONTENT_TYPE_LATEST}
+
 # ML Optimization endpoint for Spring Boot
 @app.route('/_ml/optimize', methods=['POST'])
 def ml_optimize():
@@ -668,6 +713,11 @@ def ml_optimize():
     Internal ML optimization endpoint called by Spring Boot
     """
     try:
+        # validate internal token
+        expected = os.getenv('INTERNAL_API_TOKEN', 'dev-internal-token')
+        got = request.headers.get('X-Internal-Token')
+        if not got or got != expected:
+            return jsonify({'error': 'unauthorized'}), 401
         data = request.get_json()
         
         # Extract data from Spring Boot request
@@ -678,6 +728,31 @@ def ml_optimize():
         locked_players = data.get('locked_players', [])
         avoid_players = data.get('avoid_players', [])
         formation = data.get('formation', '3-4-3')
+        
+        # Generate cache key from request
+        cache_key_data = json.dumps({
+            'budget': budget,
+            'free_transfers': free_transfers,
+            'formation': formation,
+            'locked_players': sorted(locked_players) if locked_players else [],
+            'avoid_players': sorted(avoid_players) if avoid_players else [],
+            'player_count': len(players)
+        }, sort_keys=True)
+        cache_key_hash = hashlib.md5(cache_key_data.encode()).hexdigest()
+        cache_key = f"optimization:{cache_key_hash}"
+        
+        # Try cache first
+        redis_client = get_redis_client()
+        if redis_client:
+            try:
+                cached = redis_client.get(cache_key)
+                if cached:
+                    logger.info(f"Cache HIT: {cache_key}")
+                    cache_hits.labels(cache_name='optimization').inc()
+                    return jsonify(json.loads(cached))
+                cache_misses.labels(cache_name='optimization').inc()
+            except Exception as e:
+                logger.warning(f"Cache read error: {e}")
         
         logger.info(f"ML optimization request: {len(players)} players, budget: {budget}, transfers: {free_transfers}")
         
@@ -756,6 +831,13 @@ def ml_optimize():
             'total_points': total_points,
             'formation': formation
         }
+        
+        # Store in cache (30 min TTL)
+        if redis_client:
+            try:
+                redis_client.setex(cache_key, 1800, json.dumps(result))
+            except Exception as e:
+                logger.warning(f"Cache write error: {e}")
         
         logger.info(f"ML optimization completed: {len(optimal_team)} players, {total_value:.1f}M value")
         return jsonify(result)

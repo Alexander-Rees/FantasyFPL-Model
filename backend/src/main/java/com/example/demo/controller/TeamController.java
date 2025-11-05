@@ -10,15 +10,18 @@ import com.example.demo.model.Team;
 import com.example.demo.service.FplImportService;
 import com.example.demo.service.TeamOptimizationService;
 import com.example.demo.service.TeamService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @RestController
-@RequestMapping("/api/team")
+@RequestMapping("/api/v1/team")
 public class TeamController {
 
     @Autowired
@@ -29,6 +32,11 @@ public class TeamController {
     
     @Autowired
     private TeamOptimizationService teamOptimizationService;
+
+    @Autowired(required = false)
+    private StringRedisTemplate redisTemplate;
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @GetMapping
     public Team getTeam(@RequestParam Long userId) {
@@ -92,11 +100,36 @@ public class TeamController {
     
     // Team optimization endpoint
     @PostMapping("/optimize")
-    public ResponseEntity<OptimizeResponseDTO> optimizeTeam(@RequestParam Long userId, @RequestBody OptimizeRequestDTO request) {
+    public ResponseEntity<OptimizeResponseDTO> optimizeTeam(@RequestParam Long userId,
+                                                            @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey,
+                                                            @RequestBody OptimizeRequestDTO request) {
         try {
+            // Idempotency check
+            if (idempotencyKey != null && !idempotencyKey.isEmpty() && redisTemplate != null) {
+                String cacheKey = "idempotency:" + idempotencyKey;
+                String cachedResponse = redisTemplate.opsForValue().get(cacheKey);
+                if (cachedResponse != null) {
+                    System.out.println("Idempotency key hit: " + idempotencyKey);
+                    OptimizeResponseDTO response = objectMapper.readValue(cachedResponse, OptimizeResponseDTO.class);
+                    return ResponseEntity.ok(response);
+                }
+            }
+
             System.out.println("Optimization request received for user: " + userId);
             OptimizeResponseDTO response = teamOptimizationService.optimizeTeam(userId, request);
             System.out.println("Optimization completed successfully");
+
+            // Cache response with idempotency key (5 minute TTL)
+            if (idempotencyKey != null && !idempotencyKey.isEmpty() && redisTemplate != null) {
+                try {
+                    String cacheKey = "idempotency:" + idempotencyKey;
+                    String responseJson = objectMapper.writeValueAsString(response);
+                    redisTemplate.opsForValue().set(cacheKey, responseJson, 5, TimeUnit.MINUTES);
+                } catch (Exception e) {
+                    System.err.println("Failed to cache idempotency response: " + e.getMessage());
+                }
+            }
+
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             System.err.println("Optimization error: " + e.getMessage());

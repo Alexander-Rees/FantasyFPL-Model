@@ -3,6 +3,7 @@ package com.example.demo.service;
 import com.example.demo.dto.PlayerDTO;
 import com.example.demo.model.Player;
 import com.example.demo.repository.PlayerRepository;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,7 +18,8 @@ public class PlayerDataService {
         this.playerRepository = playerRepository;
     }
 
-    // Get all players from database
+    // Get all players from database - cached
+    @Cacheable(value = "players", key = "'all'")
     public List<PlayerDTO> getAllPlayers() {
         List<Player> players = playerRepository.findAll();
         return players.stream()

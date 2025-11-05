@@ -6,14 +6,21 @@ import com.example.demo.model.Team;
 import com.example.demo.model.User;
 import com.example.demo.repository.PlayerRepository;
 import com.example.demo.repository.TeamRepository;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
+import io.github.resilience4j.bulkhead.annotation.Bulkhead;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,6 +34,9 @@ public class TeamOptimizationService {
 
     @Autowired
     private PlayerDataService playerDataService;
+
+    @Autowired(required = false)
+    private StringRedisTemplate redisTemplate;
 
     @Value("${flask.api.url:http://localhost:5001}")
     private String flaskApiUrl;
@@ -82,22 +92,9 @@ public class TeamOptimizationService {
 
             System.out.println("Calling Flask API at: " + flaskApiUrl + "/_ml/optimize");
 
-            // Call Flask ML API
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(flaskRequest, headers);
-
-            String optimizeUrl = flaskApiUrl + "/_ml/optimize";
-            ResponseEntity<Map> response = restTemplate.postForEntity(optimizeUrl, entity, Map.class);
-
-            System.out.println("Flask API response status: " + response.getStatusCode());
-            System.out.println("Flask API response body: " + response.getBody());
-
-            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
-                return parseFlaskResponse(response.getBody());
-            } else {
-                throw new RuntimeException("Flask API returned error: " + response.getStatusCode());
-            }
+            // Call Flask ML API with resilience patterns
+            Map<String, Object> flaskResponse = callFlaskOptimization(flaskRequest);
+            return parseFlaskResponse(flaskResponse);
 
         } catch (Exception e) {
             System.out.println("Flask API call failed, using fallback: " + e.getMessage());
@@ -105,6 +102,36 @@ public class TeamOptimizationService {
             // Fallback to basic optimization if Flask is unavailable
             return createFallbackOptimization(currentTeam, request);
         }
+    }
+
+    @CircuitBreaker(name = "flaskMl", fallbackMethod = "flaskFallback")
+    @Retry(name = "flaskMl")
+    @Bulkhead(name = "flaskMl")
+    private Map<String, Object> callFlaskOptimization(Map<String, Object> flaskRequest) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        // Service-to-service auth header
+        String internalToken = System.getProperty("INTERNAL_API_TOKEN",
+                System.getenv().getOrDefault("INTERNAL_API_TOKEN", "dev-internal-token"));
+        headers.add("X-Internal-Token", internalToken);
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(flaskRequest, headers);
+
+        String optimizeUrl = flaskApiUrl + "/_ml/optimize";
+        ResponseEntity<Map> response = restTemplate.postForEntity(optimizeUrl, entity, Map.class);
+
+        System.out.println("Flask API response status: " + response.getStatusCode());
+        System.out.println("Flask API response body: " + response.getBody());
+
+        if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+            return response.getBody();
+        } else {
+            throw new RuntimeException("Flask API returned error: " + response.getStatusCode());
+        }
+    }
+
+    private Map<String, Object> flaskFallback(Map<String, Object> flaskRequest, Exception e) {
+        System.out.println("Circuit breaker fallback triggered: " + e.getMessage());
+        throw new RuntimeException("Flask service unavailable", e);
     }
 
     private OptimizeResponseDTO parseFlaskResponse(Map<String, Object> response) {
