@@ -1,6 +1,5 @@
 package com.example.demo.integration;
 
-import com.example.demo.dto.PlayerDTO;
 import com.example.demo.model.Player;
 import com.example.demo.repository.PlayerRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,14 +10,16 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureWebMvc
 @ActiveProfiles("test")
+@Transactional
 class PlayerControllerIntegrationTest {
 
     @Autowired
@@ -32,13 +33,20 @@ class PlayerControllerIntegrationTest {
     @BeforeEach
     void setUp() {
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+        
+        // Create test data
+        Player testPlayer = new Player();
+        testPlayer.setName("Test Player");
+        testPlayer.setPosition("MID");
+        testPlayer.setTeam("Arsenal");
+        testPlayer.setValue(50);
+        testPlayer.setTotalPoints(100);
+        testPlayer.setWeeklyPoints(10);
+        playerRepository.save(testPlayer);
     }
 
     @Test
     void testGetPlayersEndpoint() throws Exception {
-        // This is a basic integration test structure
-        // In a real scenario, you'd set up test data first
-        
         mockMvc.perform(get("/api/v1/players"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json"));

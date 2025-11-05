@@ -3,6 +3,7 @@ package com.example.demo.health;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -10,6 +11,7 @@ import java.time.Duration;
 import java.time.Instant;
 
 @Component
+@Profile("!test")
 public class FlaskHealthIndicator implements HealthIndicator {
 
     @Value("${flask.api.url:http://localhost:5001}")

@@ -1,8 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-// Replace this with the actual path to your background image
-import backgroundImage from '/Users/arees/fantasy-soccer-app/frontend/src/PLTrophy.jpg';
+import backgroundImage from '../PLTrophy.jpg';
 
 const HomePage = () => {
   const navigate = useNavigate();
