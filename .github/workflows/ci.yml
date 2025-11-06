@@ -99,29 +99,34 @@ jobs:
       - name: Wait for services to be healthy
         working-directory: infra
         run: |
-          echo "Waiting for services to be healthy..."
+          echo "Waiting for services to start..."
           timeout=180
           elapsed=0
           while [ $elapsed -lt $timeout ]; do
-            flask_status=$(docker compose ps flask-ml --format json 2>/dev/null | grep -o '"Health":"[^"]*"' | cut -d'"' -f4 || echo "unknown")
-            backend_status=$(docker compose ps backend-api --format json 2>/dev/null | grep -o '"Health":"[^"]*"' | cut -d'"' -f4 || echo "unknown")
-            if [ "$flask_status" = "healthy" ] && [ "$backend_status" = "healthy" ]; then
-              echo "All services are healthy"
-              break
+            # Check if services are running
+            flask_running=$(docker compose ps flask-ml --format json 2>/dev/null | grep -q "running" && echo "yes" || echo "no")
+            backend_running=$(docker compose ps backend-api --format json 2>/dev/null | grep -q "running" && echo "yes" || echo "no")
+            
+            if [ "$flask_running" = "yes" ] && [ "$backend_running" = "yes" ]; then
+              # Try health endpoints
+              if curl -f -s http://localhost:5001/health > /dev/null 2>&1 && curl -f -s http://localhost:8081/actuator/health > /dev/null 2>&1; then
+                echo "All services are healthy and responding"
+                break
+              fi
             fi
-            echo "Waiting for services... Flask: $flask_status, Backend: $backend_status ($elapsed/$timeout seconds)"
+            echo "Waiting for services... Flask: $flask_running, Backend: $backend_running ($elapsed/$timeout seconds)"
             sleep 5
             elapsed=$((elapsed + 5))
           done
           if [ $elapsed -ge $timeout ]; then
             echo "Timeout waiting for services"
             docker compose ps
+            echo "=== Flask logs ==="
             docker compose logs flask-ml --tail 50
+            echo "=== Backend logs ==="
             docker compose logs backend-api --tail 50
             exit 1
           fi
-          # Additional wait for services to fully initialize
-          sleep 10
       
       - name: Check health endpoints
         run: |
