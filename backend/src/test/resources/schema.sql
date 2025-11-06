@@ -25,8 +25,7 @@ CREATE TABLE IF NOT EXISTS team (
     budget DOUBLE,
     user_id BIGINT,
     created_at TIMESTAMP,
-    updated_at TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES user(id)
+    updated_at TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS team_players (
