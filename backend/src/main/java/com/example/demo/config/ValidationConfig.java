@@ -1,10 +1,10 @@
 package com.example.demo.config;
 
 import org.springframework.context.annotation.Configuration;
-import org.springframework.validation.annotation.Validated;
 
 @Configuration
-@Validated
 public class ValidationConfig {
+    // Configuration for validation - @Validated is handled by Spring Boot automatically
+    // when spring-boot-starter-validation is on the classpath
 }
 
