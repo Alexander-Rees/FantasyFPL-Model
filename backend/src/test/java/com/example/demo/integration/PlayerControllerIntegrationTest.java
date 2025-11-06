@@ -2,6 +2,8 @@ package com.example.demo.integration;
 
 import com.example.demo.model.Player;
 import com.example.demo.repository.PlayerRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +11,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -16,6 +19,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
+@Transactional
 class PlayerControllerIntegrationTest {
 
     @Autowired
@@ -24,9 +28,15 @@ class PlayerControllerIntegrationTest {
     @Autowired
     private PlayerRepository playerRepository;
 
+    @PersistenceContext
+    private EntityManager entityManager;
+
     @BeforeEach
     void setUp() {
-        // Create test data - schema is created by Hibernate on context load
+        // Ensure schema is created by triggering a flush
+        entityManager.flush();
+        
+        // Create test data
         Player testPlayer = new Player();
         testPlayer.setName("Test Player");
         testPlayer.setPosition("MID");
