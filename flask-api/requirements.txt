@@ -2,8 +2,10 @@ Flask
 flask-cors
 requests
 pandas
+numpy
 joblib
 PuLP
 redis
 prometheus-client
 mysql-connector-python
+PyJWT
