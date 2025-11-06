@@ -1,6 +1,8 @@
 Flask
+flask-cors
 pandas
 joblib
 PuLP
 redis
 prometheus-client
+mysql-connector-python

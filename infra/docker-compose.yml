@@ -1,4 +1,4 @@
-version: "3.9"
+# Docker Compose file - version field is obsolete in newer versions
 
 networks:
   app-net:
