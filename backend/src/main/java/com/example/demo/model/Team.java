@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "team")
 public class Team {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

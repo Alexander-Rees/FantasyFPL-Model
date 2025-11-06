@@ -8,9 +8,11 @@ RUN npm run build
 
 # Serve stage
 FROM nginx:1.25-alpine
-RUN adduser -D -H -u 101 app && mkdir -p /usr/share/nginx/html && chown -R app /usr/share/nginx/html
+# nginx image already runs as non-root user 'nginx'
+# Just ensure correct ownership of the web root
+RUN mkdir -p /usr/share/nginx/html
 COPY --from=builder /app/build /usr/share/nginx/html
+# nginx runs as non-root user by default (nginx:nginx)
 EXPOSE 80
-USER app
 ENTRYPOINT ["nginx", "-g", "daemon off;"]
 
