@@ -1,5 +1,6 @@
 Flask
 flask-cors
+requests
 pandas
 joblib
 PuLP

@@ -36,13 +36,15 @@ public class FlaskHealthIndicator implements HealthIndicator {
                         .withDetail("responseTime", duration.toMillis() + "ms")
                         .build();
             } else {
-                return Health.down()
+                // Flask is down but don't fail overall health - return unknown
+                return Health.unknown()
                         .withDetail("flaskApiUrl", flaskApiUrl)
                         .withDetail("error", "Invalid response")
                         .build();
             }
         } catch (Exception e) {
-            return Health.down()
+            // Flask is down but don't fail overall health - return unknown
+            return Health.unknown()
                     .withDetail("flaskApiUrl", flaskApiUrl)
                     .withDetail("error", e.getMessage())
                     .build();
