@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.context.annotation.Profile;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -20,7 +21,10 @@ public class FlaskHealthIndicator implements HealthIndicator {
     private final RestTemplate restTemplate;
 
     public FlaskHealthIndicator() {
-        this.restTemplate = new RestTemplate();
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        factory.setConnectTimeout(2000); // 2 second connection timeout
+        factory.setReadTimeout(2000); // 2 second read timeout
+        this.restTemplate = new RestTemplate(factory);
     }
 
     @Override
