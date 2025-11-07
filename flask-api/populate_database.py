@@ -117,8 +117,11 @@ def clear_existing_players():
         logger.error(f"Error clearing existing players: {e}")
         return False
 
-def insert_players_to_db(players):
-    """Insert player data into MySQL database"""
+def upsert_players_to_db(players):
+    """
+    Insert or update player data in MySQL database using UPSERT.
+    This preserves existing player IDs, keeping team_players references intact.
+    """
     connection = get_db_connection()
     if not connection:
         return False
@@ -126,71 +129,81 @@ def insert_players_to_db(players):
     try:
         cursor = connection.cursor()
         
-        # Prepare insert statement
-        insert_query = """
-        INSERT INTO player (id, name, position, team, fpl_id, value, total_points, weekly_points)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        # Use INSERT ... ON DUPLICATE KEY UPDATE
+        # This updates existing players (matched by fpl_id) or inserts new ones
+        # Preserves existing player.id values, so team_players references stay valid
+        upsert_query = """
+        INSERT INTO player (name, position, team, fpl_id, value, total_points, weekly_points)
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
+        ON DUPLICATE KEY UPDATE
+            name = VALUES(name),
+            position = VALUES(position),
+            team = VALUES(team),
+            value = VALUES(value),
+            total_points = VALUES(total_points),
+            weekly_points = VALUES(weekly_points)
         """
         
-        # Prepare data for insertion
+        # Prepare data (don't specify id - let auto-increment handle it for new players)
         player_data = []
-        for i, player in enumerate(players, 1):
+        for player in players:
             player_data.append((
-                i,  # Our internal ID (auto-increment)
                 player['name'],
                 player['position'],
                 player['team'],
-                player['id'],  # Actual FPL ID from API
+                player['id'],  # fpl_id (used for matching)
                 player['value'],
                 player['total_points'],
                 player['weekly_points']
             ))
         
-        # Insert all players
-        cursor.executemany(insert_query, player_data)
+        # Upsert all players
+        cursor.executemany(upsert_query, player_data)
         connection.commit()
         
-        logger.info(f"Successfully inserted {len(players)} players into database")
+        logger.info(f"Successfully upserted {len(players)} players into database")
+        logger.info("✅ Player IDs preserved - team references remain intact")
         
         cursor.close()
         connection.close()
         return True
         
     except Error as e:
-        logger.error(f"Error inserting players: {e}")
+        logger.error(f"Error upserting players: {e}")
         return False
 
 def main():
-    """Main function to populate database with FPL player data"""
+    """
+    Main function to populate database with FPL player data.
+    Uses UPSERT to preserve existing player IDs and team references.
+    """
     logger.info("Starting database population with FPL player data...")
+    logger.info("Using UPSERT strategy to preserve player IDs and team references")
     
-    # Step 1: Clear existing player data
-    logger.info("Step 1: Clearing existing player data...")
-    if not clear_existing_players():
-        logger.error("Failed to clear existing player data")
-        return False
-    
-    # Step 2: Fetch fresh FPL data
-    logger.info("Step 2: Fetching fresh FPL data...")
+    # Step 1: Fetch fresh FPL data
+    logger.info("Step 1: Fetching fresh FPL data...")
     static_data = fetch_fpl_data(FPL_STATIC_URL)
     if not static_data:
         logger.error("Failed to fetch FPL data")
         return False
     
-    # Step 3: Process player data
-    logger.info("Step 3: Processing player data...")
+    # Step 2: Process player data
+    logger.info("Step 2: Processing player data...")
     players = process_player_data(static_data)
     logger.info(f"Processed {len(players)} players")
     
-    # Step 4: Insert players into database
-    logger.info("Step 4: Inserting players into database...")
-    if not insert_players_to_db(players):
-        logger.error("Failed to insert players into database")
+    # Step 3: Upsert players into database (updates existing, inserts new)
+    logger.info("Step 3: Upserting players into database...")
+    logger.info("  - Existing players will be updated (preserving their IDs)")
+    logger.info("  - New players will be inserted")
+    if not upsert_players_to_db(players):
+        logger.error("Failed to upsert players into database")
         return False
     
     logger.info("✅ Database population completed successfully!")
-    logger.info(f"📊 Inserted {len(players)} players")
+    logger.info(f"📊 Upserted {len(players)} players")
     logger.info(f"🕒 Completed at: {datetime.now().isoformat()}")
+    logger.info("✅ Player IDs preserved - all team references remain valid")
     
     return True
 

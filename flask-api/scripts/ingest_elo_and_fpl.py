@@ -173,7 +173,10 @@ def merge_data(fpl_players, elo_data):
         return pd.DataFrame(fpl_players)
 
 def update_database(players_df):
-    """Update the database with fresh player data"""
+    """
+    Update the database with fresh player data using UPSERT.
+    This preserves existing player IDs, keeping team_players references intact.
+    """
     connection = None
     cursor = None
     
@@ -181,29 +184,31 @@ def update_database(players_df):
         connection = get_db_connection()
         cursor = connection.cursor()
         
-        # Disable foreign key checks temporarily
-        cursor.execute("SET FOREIGN_KEY_CHECKS = 0")
-        
-        # Clear existing player data
-        logger.info("Clearing existing player data...")
-        cursor.execute("DELETE FROM team_players")
-        cursor.execute("DELETE FROM player")
-        
-        # Prepare insert statement
-        insert_query = """
-        INSERT INTO player (id, name, position, team, fpl_id, value, total_points, weekly_points, form, selected_by_percent)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        # Use INSERT ... ON DUPLICATE KEY UPDATE
+        # This updates existing players (matched by fpl_id) or inserts new ones
+        # Preserves existing player.id values, so team_players references stay valid
+        upsert_query = """
+        INSERT INTO player (name, position, team, fpl_id, value, total_points, weekly_points, form, selected_by_percent)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+        ON DUPLICATE KEY UPDATE
+            name = VALUES(name),
+            position = VALUES(position),
+            team = VALUES(team),
+            value = VALUES(value),
+            total_points = VALUES(total_points),
+            weekly_points = VALUES(weekly_points),
+            form = VALUES(form),
+            selected_by_percent = VALUES(selected_by_percent)
         """
         
-        # Insert players
+        # Prepare data (don't specify id - let auto-increment handle it for new players)
         player_data = []
-        for i, (_, player) in enumerate(players_df.iterrows(), 1):
+        for _, player in players_df.iterrows():
             player_data.append((
-                i,  # Our internal ID
                 player['name'],
                 player['position'],
                 player['team'],
-                player['fpl_id'],
+                player['fpl_id'],  # Used for matching existing players
                 player['value'],
                 player['total_points'],
                 player['weekly_points'],
@@ -211,14 +216,12 @@ def update_database(players_df):
                 player.get('selected_by_percent', '0.0')
             ))
         
-        # Insert all players
-        cursor.executemany(insert_query, player_data)
+        # Upsert all players
+        cursor.executemany(upsert_query, player_data)
         connection.commit()
         
-        logger.info(f"Successfully inserted {len(player_data)} players")
-        
-        # Re-enable foreign key checks
-        cursor.execute("SET FOREIGN_KEY_CHECKS = 1")
+        logger.info(f"Successfully upserted {len(player_data)} players")
+        logger.info("✅ Player IDs preserved - team references remain intact")
         
         # Log ingestion run
         cursor.execute("""
@@ -236,6 +239,9 @@ def update_database(players_df):
         VALUES (%s, %s, %s)
         """, (len(player_data), 'SUCCESS', f'Ingested {len(player_data)} players'))
         connection.commit()
+        
+        cursor.close()
+        connection.close()
         
     except Error as e:
         logger.error(f"Database error: {e}")
