@@ -15,19 +15,20 @@ from mysql.connector import Error
 import requests
 import json
 import logging
+import os
 from datetime import datetime
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Database Configuration
+# Database Configuration - use environment variables if available (for Docker)
 DB_CONFIG = {
-    'host': 'localhost',
-    'database': 'fantasy_soccer',
-    'user': 'root',
-    'password': 'NewPassword',
-    'port': 3306
+    'host': os.getenv('DB_HOST', 'localhost'),
+    'database': os.getenv('DB_NAME', 'fantasy_soccer'),
+    'user': os.getenv('DB_USER', 'root'),
+    'password': os.getenv('DB_PASSWORD', 'NewPassword'),
+    'port': int(os.getenv('DB_PORT', '3306'))
 }
 
 # FPL API Configuration

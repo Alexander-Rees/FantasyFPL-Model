@@ -52,31 +52,9 @@ public class FplImportService {
             Integer currentGameweek = getCurrentGameweek();
             System.out.println("API reports current gameweek: " + currentGameweek);
             
-            // Force try gameweek 7 first since we know that's the most recent
-            System.out.println("Trying gameweek 7 first (most recent known)...");
-            try {
-                String picksUrl = String.format("%s/entry/%d/event/%d/picks/", FPL_BASE_URL, entryId, 7);
-                System.out.println("Trying gameweek 7: " + picksUrl);
-                
-                ResponseEntity<Map> response = restTemplate.getForEntity(picksUrl, Map.class);
-                
-                if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
-                    Map<String, Object> data = response.getBody();
-                    List<Map<String, Object>> picks = (List<Map<String, Object>>) data.get("picks");
-                    
-                    if (picks != null && !picks.isEmpty()) {
-                        teamData = data;
-                        gameweekUsed = 7;
-                        System.out.println("Found team data for gameweek 7 with " + picks.size() + " players");
-                    }
-                }
-            } catch (Exception e) {
-                System.out.println("Gameweek 7 failed: " + e.getMessage());
-            }
-            
-            // If gameweek 7 didn't work, try current gameweek first, then work backwards
+            // Try current gameweek first, then work backwards
             if (teamData == null) {
-                System.out.println("Gameweek 7 failed, trying current gameweek and working backwards...");
+                System.out.println("Trying current gameweek (" + currentGameweek + ") and working backwards...");
                 for (int gw = currentGameweek; gw >= 1; gw--) {
                     try {
                         String picksUrl = String.format("%s/entry/%d/event/%d/picks/", FPL_BASE_URL, entryId, gw);
@@ -166,6 +144,9 @@ public class FplImportService {
             
             // Process each pick and add players to team
             List<Player> teamPlayers = new ArrayList<>();
+            long totalPlayersInDb = playerRepository.count();
+            System.out.println("Total players in database: " + totalPlayersInDb);
+            
             for (Map<String, Object> pick : picks) {
                 Integer fplPlayerId = (Integer) pick.get("element");
                 Optional<Player> playerOpt = playerRepository.findByFplId(fplPlayerId.longValue());
@@ -175,8 +156,12 @@ public class FplImportService {
                     System.out.println("Added player: " + playerOpt.get().getName() + " (FPL ID: " + fplPlayerId + ")");
                 } else {
                     System.out.println("Warning: FPL player ID " + fplPlayerId + " not found in database");
+                    // Check if any players exist with similar IDs
+                    System.out.println("  Checking if database has any players...");
                 }
             }
+            
+            System.out.println("Successfully matched " + teamPlayers.size() + " out of " + picks.size() + " players from FPL");
             
             team.setPlayers(teamPlayers);
             
