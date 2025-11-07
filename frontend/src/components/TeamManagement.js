@@ -32,7 +32,7 @@ const TeamManagement = () => {
       setLoading(true);
       const token = localStorage.getItem('token');
       console.log('Fetching team data for user ID:', user.id);
-      const response = await fetch(`http://localhost:8081/api/team/players?userId=${user.id}`, {
+      const response = await fetch(`http://localhost:8081/api/v1/team/players?userId=${user.id}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -72,7 +72,9 @@ const TeamManagement = () => {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:8081/api/team/import/fpl-entry?userId=${user.id}`, {
+      console.log('Importing team for user ID:', user.id);
+      console.log('User object:', user);
+      const response = await fetch(`http://localhost:8081/api/v1/team/import/fpl-entry?userId=${user.id}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -88,8 +90,20 @@ const TeamManagement = () => {
         // Refresh team data
         fetchTeamData();
       } else {
-        const errorData = await response.json();
-        setImportMessage(`❌ Import failed: ${errorData.message || 'Unknown error'}`);
+        // Try to parse error response, but handle empty responses gracefully
+        let errorMessage = 'Unknown error';
+        try {
+          const text = await response.text();
+          if (text) {
+            const errorData = JSON.parse(text);
+            errorMessage = errorData.message || errorMessage;
+          } else {
+            errorMessage = `Import failed with status ${response.status}`;
+          }
+        } catch (parseError) {
+          errorMessage = `Import failed with status ${response.status}`;
+        }
+        setImportMessage(`❌ Import failed: ${errorMessage}`);
       }
     } catch (error) {
       console.error('Import error:', error);
@@ -111,7 +125,7 @@ const TeamManagement = () => {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:8081/api/team/optimize?userId=${user.id}`, {
+      const response = await fetch(`http://localhost:8081/api/v1/team/optimize?userId=${user.id}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

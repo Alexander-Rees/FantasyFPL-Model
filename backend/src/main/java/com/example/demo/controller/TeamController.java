@@ -17,7 +17,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @RestController
@@ -79,12 +81,16 @@ public class TeamController {
     
     // FPL Import endpoints
     @PostMapping("/import/fpl-entry")
-    public ResponseEntity<Team> importFromFpl(@RequestParam Long userId, @RequestBody FplImportRequestDTO request) {
+    public ResponseEntity<?> importFromFpl(@RequestParam Long userId, @RequestBody FplImportRequestDTO request) {
         try {
             Team team = fplImportService.importTeamFromFpl(userId, request.getEntryId());
             return ResponseEntity.ok(team);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+            System.err.println("Error importing team: " + e.getMessage());
+            e.printStackTrace();
+            Map<String, String> error = new HashMap<>();
+            error.put("message", e.getMessage() != null ? e.getMessage() : "Failed to import team from FPL");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
         }
     }
     

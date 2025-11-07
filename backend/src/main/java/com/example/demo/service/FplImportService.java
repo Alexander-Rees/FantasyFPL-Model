@@ -139,8 +139,15 @@ public class FplImportService {
             System.out.println("Using team data from gameweek " + gameweekUsed + " with " + picks.size() + " players");
             
             // Get user first
-            User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+            System.out.println("Looking for user with ID: " + userId);
+            Optional<User> userOpt = userRepository.findById(userId);
+            if (!userOpt.isPresent()) {
+                System.out.println("User not found in database. Available users:");
+                userRepository.findAll().forEach(u -> System.out.println("  - User ID: " + u.getId() + ", Email: " + u.getEmail()));
+                throw new RuntimeException("User not found with ID: " + userId + ". Please register or log in first.");
+            }
+            User user = userOpt.get();
+            System.out.println("Found user: " + user.getEmail() + " (ID: " + user.getId() + ")");
             
             // Get or create team for user
             Team team = teamRepository.findByUserId(userId);
