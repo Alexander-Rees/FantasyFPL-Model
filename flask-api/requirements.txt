@@ -8,5 +8,5 @@ joblib
 PuLP
 redis
 prometheus-client
-mysql-connector-python
+psycopg2-binary
 PyJWT

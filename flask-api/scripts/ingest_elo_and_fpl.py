@@ -10,10 +10,10 @@ Usage:
     python scripts/ingest_elo_and_fpl.py
 
 Environment Variables:
-    DB_HOST: MySQL host (default: localhost)
-    DB_USER: MySQL username (default: root)
-    DB_PASSWORD: MySQL password (required)
-    DB_NAME: MySQL database name (default: fpl_optimization)
+    DB_HOST: PostgreSQL host (default: localhost)
+    DB_USER: PostgreSQL username (default: postgres)
+    DB_PASSWORD: PostgreSQL password (required)
+    DB_NAME: PostgreSQL database name (default: fantasy_soccer)
 """
 
 import os
@@ -21,8 +21,8 @@ import sys
 import logging
 import requests
 import pandas as pd
-import mysql.connector
-from mysql.connector import Error
+import psycopg2
+from psycopg2 import Error
 from datetime import datetime
 import json
 
@@ -33,30 +33,29 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Database configuration
+# Database configuration - PostgreSQL (Supabase)
 DB_CONFIG = {
     'host': os.getenv('DB_HOST', 'localhost'),
-    'user': os.getenv('DB_USER', 'root'),
+    'user': os.getenv('DB_USER', 'postgres'),
     'password': os.getenv('DB_PASSWORD'),
-    'database': os.getenv('DB_NAME', 'fpl_optimization'),
-    'port': 3306
+    'database': os.getenv('DB_NAME', 'fantasy_soccer'),
+    'port': int(os.getenv('DB_PORT', '5432'))
 }
 
 # FPL API endpoints
 FPL_BASE_URL = "https://fantasy.premierleague.com/api"
-ELO_DATA_PATH = "../temp-elo-data/data"
+# ELO_DATA_PATH is relative to flask-api directory when script runs from there
+ELO_DATA_PATH = os.getenv('ELO_DATA_PATH', "../temp-elo-data/data")
 
 def get_db_connection():
-    """Get MySQL database connection"""
+    """Get PostgreSQL database connection"""
     try:
-        connection = mysql.connector.connect(**DB_CONFIG)
-        if connection.is_connected():
-            logger.info("Successfully connected to MySQL database")
-            return connection
+        connection = psycopg2.connect(**DB_CONFIG)
+        logger.info("Successfully connected to PostgreSQL database")
+        return connection
     except Error as e:
-        logger.error(f"Error connecting to MySQL: {e}")
+        logger.error(f"Error connecting to PostgreSQL: {e}")
         raise
-    return None
 
 def fetch_fpl_data():
     """Fetch fresh data from official FPL API"""
@@ -174,7 +173,7 @@ def merge_data(fpl_players, elo_data):
 
 def update_database(players_df):
     """
-    Update the database with fresh player data using UPSERT.
+    Update the database with fresh player data using UPSERT (PostgreSQL).
     This preserves existing player IDs, keeping team_players references intact.
     """
     connection = None
@@ -184,21 +183,23 @@ def update_database(players_df):
         connection = get_db_connection()
         cursor = connection.cursor()
         
-        # Use INSERT ... ON DUPLICATE KEY UPDATE
+        # Use INSERT ... ON CONFLICT (PostgreSQL syntax)
         # This updates existing players (matched by fpl_id) or inserts new ones
         # Preserves existing player.id values, so team_players references stay valid
         upsert_query = """
-        INSERT INTO player (name, position, team, fpl_id, value, total_points, weekly_points, form, selected_by_percent)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-        ON DUPLICATE KEY UPDATE
-            name = VALUES(name),
-            position = VALUES(position),
-            team = VALUES(team),
-            value = VALUES(value),
-            total_points = VALUES(total_points),
-            weekly_points = VALUES(weekly_points),
-            form = VALUES(form),
-            selected_by_percent = VALUES(selected_by_percent)
+        INSERT INTO player (name, position, team, fpl_id, value, total_points, weekly_points, form, selected_by_percent, elo_rating, elo_form)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        ON CONFLICT (fpl_id) DO UPDATE SET
+            name = EXCLUDED.name,
+            position = EXCLUDED.position,
+            team = EXCLUDED.team,
+            value = EXCLUDED.value,
+            total_points = EXCLUDED.total_points,
+            weekly_points = EXCLUDED.weekly_points,
+            form = EXCLUDED.form,
+            selected_by_percent = EXCLUDED.selected_by_percent,
+            elo_rating = EXCLUDED.elo_rating,
+            elo_form = EXCLUDED.elo_form
         """
         
         # Prepare data (don't specify id - let auto-increment handle it for new players)
@@ -213,7 +214,9 @@ def update_database(players_df):
                 player['total_points'],
                 player['weekly_points'],
                 player.get('form', 0),
-                player.get('selected_by_percent', '0.0')
+                player.get('selected_by_percent', '0.0'),
+                player.get('elo_rating', 0),
+                player.get('elo_form', 0)
             ))
         
         # Upsert all players
@@ -223,11 +226,11 @@ def update_database(players_df):
         logger.info(f"Successfully upserted {len(player_data)} players")
         logger.info("✅ Player IDs preserved - team references remain intact")
         
-        # Log ingestion run
+        # Log ingestion run (PostgreSQL syntax)
         cursor.execute("""
         CREATE TABLE IF NOT EXISTS ingest_runs (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+            id BIGSERIAL PRIMARY KEY,
+            timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             players_count INT,
             status VARCHAR(50),
             notes TEXT
@@ -239,9 +242,6 @@ def update_database(players_df):
         VALUES (%s, %s, %s)
         """, (len(player_data), 'SUCCESS', f'Ingested {len(player_data)} players'))
         connection.commit()
-        
-        cursor.close()
-        connection.close()
         
     except Error as e:
         logger.error(f"Database error: {e}")

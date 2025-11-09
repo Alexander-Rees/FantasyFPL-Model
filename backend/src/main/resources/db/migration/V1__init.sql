@@ -1,27 +1,27 @@
--- Flyway baseline migration
-CREATE TABLE IF NOT EXISTS user (
-  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+-- Flyway baseline migration (PostgreSQL)
+CREATE TABLE IF NOT EXISTS "user" (
+  id BIGSERIAL PRIMARY KEY,
   name VARCHAR(255),
   email VARCHAR(255) UNIQUE,
   password VARCHAR(255)
 );
 
 CREATE TABLE IF NOT EXISTS player (
-  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  id BIGSERIAL PRIMARY KEY,
   name VARCHAR(255),
   position VARCHAR(16),
   team VARCHAR(255),
   fpl_id BIGINT,
-  value DOUBLE,
+  value DOUBLE PRECISION,
   total_points INT,
   weekly_points INT
 );
 
 CREATE TABLE IF NOT EXISTS team (
-  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  id BIGSERIAL PRIMARY KEY,
   name VARCHAR(255),
   user_id BIGINT,
-  CONSTRAINT fk_team_user FOREIGN KEY (user_id) REFERENCES user(id)
+  CONSTRAINT fk_team_user FOREIGN KEY (user_id) REFERENCES "user"(id)
 );
 
 -- join table for team players if not exists

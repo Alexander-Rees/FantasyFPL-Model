@@ -3,15 +3,15 @@
 Database Population Script for FPL Player Data
 ==============================================
 
-This script fetches fresh FPL player data and populates the MySQL database
+This script fetches fresh FPL player data and populates the PostgreSQL database
 with player information that the Spring Boot backend can read.
 
 Usage:
     python populate_database.py
 """
 
-import mysql.connector
-from mysql.connector import Error
+import psycopg2
+from psycopg2 import Error
 import requests
 import json
 import logging
@@ -22,13 +22,14 @@ from datetime import datetime
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Database Configuration - use environment variables if available (for Docker)
+# Database Configuration - PostgreSQL (Supabase)
+# Use environment variables if available (for Docker)
 DB_CONFIG = {
     'host': os.getenv('DB_HOST', 'localhost'),
     'database': os.getenv('DB_NAME', 'fantasy_soccer'),
-    'user': os.getenv('DB_USER', 'root'),
-    'password': os.getenv('DB_PASSWORD', 'NewPassword'),
-    'port': int(os.getenv('DB_PORT', '3306'))
+    'user': os.getenv('DB_USER', 'postgres'),
+    'password': os.getenv('DB_PASSWORD', 'password'),
+    'port': int(os.getenv('DB_PORT', '5432'))
 }
 
 # FPL API Configuration
@@ -36,12 +37,12 @@ FPL_BASE_URL = 'https://fantasy.premierleague.com/api'
 FPL_STATIC_URL = f'{FPL_BASE_URL}/bootstrap-static/'
 
 def get_db_connection():
-    """Get MySQL database connection"""
+    """Get PostgreSQL database connection"""
     try:
-        connection = mysql.connector.connect(**DB_CONFIG)
+        connection = psycopg2.connect(**DB_CONFIG)
         return connection
     except Error as e:
-        logger.error(f"Error connecting to MySQL: {e}")
+        logger.error(f"Error connecting to PostgreSQL: {e}")
         return None
 
 def fetch_fpl_data(endpoint, timeout=30):
@@ -84,43 +85,11 @@ def process_player_data(static_data):
     
     return enhanced_players
 
-def clear_existing_players():
-    """Clear existing player data from database"""
-    connection = get_db_connection()
-    if not connection:
-        return False
-    
-    try:
-        cursor = connection.cursor()
-        
-        # Disable foreign key checks temporarily
-        cursor.execute("SET FOREIGN_KEY_CHECKS = 0")
-        
-        # Clear team_players table first (due to foreign key constraint)
-        cursor.execute("DELETE FROM team_players")
-        logger.info("Cleared team_players table")
-        
-        # Clear players table
-        cursor.execute("DELETE FROM player")
-        logger.info("Cleared player table")
-        
-        # Re-enable foreign key checks
-        cursor.execute("SET FOREIGN_KEY_CHECKS = 1")
-        
-        connection.commit()
-        cursor.close()
-        connection.close()
-        
-        logger.info("Successfully cleared existing player data")
-        return True
-        
-    except Error as e:
-        logger.error(f"Error clearing existing players: {e}")
-        return False
+# Note: clear_existing_players() removed - we use UPSERT instead
 
 def upsert_players_to_db(players):
     """
-    Insert or update player data in MySQL database using UPSERT.
+    Insert or update player data in PostgreSQL database using UPSERT.
     This preserves existing player IDs, keeping team_players references intact.
     """
     connection = get_db_connection()
@@ -130,19 +99,19 @@ def upsert_players_to_db(players):
     try:
         cursor = connection.cursor()
         
-        # Use INSERT ... ON DUPLICATE KEY UPDATE
+        # Use INSERT ... ON CONFLICT (PostgreSQL syntax)
         # This updates existing players (matched by fpl_id) or inserts new ones
         # Preserves existing player.id values, so team_players references stay valid
         upsert_query = """
         INSERT INTO player (name, position, team, fpl_id, value, total_points, weekly_points)
         VALUES (%s, %s, %s, %s, %s, %s, %s)
-        ON DUPLICATE KEY UPDATE
-            name = VALUES(name),
-            position = VALUES(position),
-            team = VALUES(team),
-            value = VALUES(value),
-            total_points = VALUES(total_points),
-            weekly_points = VALUES(weekly_points)
+        ON CONFLICT (fpl_id) DO UPDATE SET
+            name = EXCLUDED.name,
+            position = EXCLUDED.position,
+            team = EXCLUDED.team,
+            value = EXCLUDED.value,
+            total_points = EXCLUDED.total_points,
+            weekly_points = EXCLUDED.weekly_points
         """
         
         # Prepare data (don't specify id - let auto-increment handle it for new players)
