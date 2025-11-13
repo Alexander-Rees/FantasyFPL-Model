@@ -11,6 +11,9 @@ on:
 jobs:
   ingest-data:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
     steps:
       - name: Checkout main repository
         uses: actions/checkout@v4
@@ -46,12 +49,18 @@ jobs:
       - name: Notify on failure
         if: failure()
         uses: actions/github-script@v7
+        continue-on-error: true
         with:
           script: |
-            github.rest.issues.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              title: 'Data Ingestion Failed',
-              body: 'The scheduled FPL data ingestion failed. Please check the workflow logs.'
-            })
+            try {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: 'Data Ingestion Failed',
+                body: 'The scheduled FPL data ingestion failed. Please check the workflow logs.'
+              });
+            } catch (error) {
+              console.log('Failed to create issue notification:', error.message);
+              // Don't fail the workflow if notification fails
+            }
 
