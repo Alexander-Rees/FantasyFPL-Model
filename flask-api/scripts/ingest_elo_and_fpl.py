@@ -132,13 +132,21 @@ def load_elo_data():
         season_path = os.path.join(ELO_DATA_PATH, latest_season)
         logger.info(f"Using Elo data from season: {latest_season}")
         
-        # Load players data
-        players_file = os.path.join(season_path, 'players.csv')
-        if not os.path.exists(players_file):
-            logger.warning(f"Players file not found: {players_file}")
-            return None
+        # Load playerstats data (has more comprehensive stats including Elo ratings)
+        playerstats_file = os.path.join(season_path, 'playerstats.csv')
+        if not os.path.exists(playerstats_file):
+            logger.warning(f"Playerstats file not found: {playerstats_file}, trying players.csv")
+            players_file = os.path.join(season_path, 'players.csv')
+            if not os.path.exists(players_file):
+                logger.warning(f"Players file not found: {players_file}")
+                return None
+            elo_df = pd.read_csv(players_file)
+        else:
+            elo_df = pd.read_csv(playerstats_file)
+            # Rename id column to player_code for merging
+            if 'id' in elo_df.columns:
+                elo_df = elo_df.rename(columns={'id': 'player_code'})
         
-        elo_df = pd.read_csv(players_file)
         logger.info(f"Loaded {len(elo_df)} players from Elo data")
         return elo_df
         
@@ -152,15 +160,25 @@ def merge_data(fpl_players, elo_data):
         fpl_df = pd.DataFrame(fpl_players)
         
         if elo_data is not None:
-            # Merge on player name (this is approximate matching)
+            # Merge on FPL ID (most reliable)
+            # Elo data uses 'player_code' which matches 'fpl_id' in FPL data
+            merge_key = 'player_code' if 'player_code' in elo_data.columns else 'id'
+            if merge_key not in elo_data.columns:
+                # Try to find FPL ID column
+                if 'fpl_id' in elo_data.columns:
+                    merge_key = 'fpl_id'
+                else:
+                    logger.warning("Could not find FPL ID column in Elo data, skipping merge")
+                    return fpl_df
+            
             merged_df = fpl_df.merge(
                 elo_data, 
-                left_on='name', 
-                right_on='name', 
+                left_on='fpl_id', 
+                right_on=merge_key, 
                 how='left',
                 suffixes=('_fpl', '_elo')
             )
-            logger.info(f"Merged data: {len(merged_df)} players")
+            logger.info(f"Merged data: {len(merged_df)} players (matched {merged_df[merge_key].notna().sum()} with Elo data)")
         else:
             merged_df = fpl_df
             logger.info("Using FPL data only (no Elo data available)")
@@ -169,6 +187,8 @@ def merge_data(fpl_players, elo_data):
         
     except Exception as e:
         logger.error(f"Error merging data: {e}")
+        import traceback
+        logger.error(traceback.format_exc())
         return pd.DataFrame(fpl_players)
 
 def update_database(players_df):
