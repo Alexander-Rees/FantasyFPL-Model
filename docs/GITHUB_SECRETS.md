@@ -18,8 +18,9 @@ You need to add the following secrets to your GitHub repository for the workflow
 3. **DB_USER**: `postgres`
    - Default PostgreSQL username
 
-4. **DB_PASSWORD**: `P+NX3uEz_Ay@!sN`
+4. **DB_PASSWORD**: `YOUR_DATABASE_PASSWORD`
    - Your Supabase database password (the one you set when creating the project)
+   - ⚠️ **DO NOT** use the example password - get this from your Supabase dashboard
 
 5. **DB_NAME**: `postgres`
    - Default database name (or your custom database name
@@ -53,7 +54,7 @@ You need to add the following secrets to your GitHub repository for the workflow
 | `DB_HOST` | `db.brettblayvzvgswearre.supabase.co` |
 | `DB_PORT` | `5432` |
 | `DB_USER` | `postgres` |
-| `DB_PASSWORD` | `P+NX3uEz_Ay@!sN` |
+| `DB_PASSWORD` | `YOUR_DATABASE_PASSWORD` (get from Supabase dashboard) |
 | `DB_NAME` | `postgres` |
 
 ## Testing the Secrets
