@@ -24,7 +24,7 @@ The password contains special characters (`+`, `@`, `!`) that need to be URL-enc
 
 ### PostgreSQL Connection String (URL-encoded password)
 ```
-postgresql://postgres:P%2BNX3uEz_Ay%40%21sN@db.brettblayvzvgswearre.supabase.co:5432/postgres
+postgresql://postgres:YOUR_PASSWORD_URL_ENCODED@db.brettblayvzvgswearre.supabase.co:5432/postgres
 ```
 
 ### JDBC Connection String (Spring Boot)
