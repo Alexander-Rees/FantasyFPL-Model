@@ -34,13 +34,29 @@ jobs:
         run: |
           pip install -r requirements.txt
       
+      - name: Verify database secrets
+        run: |
+          if [ -z "${{ secrets.DB_HOST }}" ]; then
+            echo "❌ Error: DB_HOST secret is not set"
+            exit 1
+          fi
+          if [ -z "${{ secrets.DB_PASSWORD }}" ]; then
+            echo "❌ Error: DB_PASSWORD secret is not set"
+            exit 1
+          fi
+          echo "✅ Database secrets are configured"
+          echo "DB_HOST: ${{ secrets.DB_HOST }}"
+          echo "DB_USER: ${{ secrets.DB_USER || 'postgres' }}"
+          echo "DB_NAME: ${{ secrets.DB_NAME || 'postgres' }}"
+          echo "DB_PORT: ${{ secrets.DB_PORT || '5432' }}"
+      
       - name: Run data ingestion
         working-directory: flask-api
         env:
           DB_HOST: ${{ secrets.DB_HOST }}
-          DB_USER: ${{ secrets.DB_USER }}
+          DB_USER: ${{ secrets.DB_USER || 'postgres' }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          DB_NAME: ${{ secrets.DB_NAME || 'fantasy_soccer' }}
+          DB_NAME: ${{ secrets.DB_NAME || 'postgres' }}
           DB_PORT: ${{ secrets.DB_PORT || '5432' }}
           ELO_DATA_PATH: ../temp-elo-data/data
         run: |

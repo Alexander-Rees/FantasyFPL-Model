@@ -50,11 +50,19 @@ ELO_DATA_PATH = os.getenv('ELO_DATA_PATH', "../temp-elo-data/data")
 def get_db_connection():
     """Get PostgreSQL database connection"""
     try:
+        # Log connection details (without password)
+        logger.info(f"Attempting to connect to PostgreSQL: {DB_CONFIG['host']}:{DB_CONFIG['port']}/{DB_CONFIG['database']} as {DB_CONFIG['user']}")
+        
+        if not DB_CONFIG['password']:
+            logger.error("DB_PASSWORD environment variable is not set!")
+            raise ValueError("DB_PASSWORD is required but not set")
+        
         connection = psycopg2.connect(**DB_CONFIG)
         logger.info("Successfully connected to PostgreSQL database")
         return connection
     except Error as e:
         logger.error(f"Error connecting to PostgreSQL: {e}")
+        logger.error(f"Connection config: host={DB_CONFIG['host']}, port={DB_CONFIG['port']}, database={DB_CONFIG['database']}, user={DB_CONFIG['user']}")
         raise
 
 def fetch_fpl_data():
