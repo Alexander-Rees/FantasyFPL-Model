@@ -6,7 +6,7 @@ This guide explains how to add the required secrets to your GitHub repository fo
 
 You need to add the following secrets to your GitHub repository for the workflows to work:
 
-### Database Connection Secrets (for Data Ingestion)
+### Database Connection Secrets (Required for Data Ingestion & CI Integration Tests)
 
 1. **DB_HOST**: `aws-1-us-east-1.pooler.supabase.com`
    - Your Supabase connection pooler hostname
@@ -25,7 +25,18 @@ You need to add the following secrets to your GitHub repository for the workflow
    - ⚠️ **DO NOT** use the example password - get this from your Supabase dashboard
 
 5. **DB_NAME**: `postgres`
-   - Default database name (or your custom database name
+   - Default database name (or your custom database name)
+
+### Spring Boot Database Secrets (Optional - NOT NEEDED)
+
+**You don't need to set these!** The Spring Boot backend automatically uses the `DB_*` secrets above. These are only needed if you want to override the defaults:
+
+- **SPRING_DATASOURCE_URL** (Optional): Full JDBC connection string
+  - Auto-constructed from `DB_HOST`, `DB_PORT`, `DB_NAME` if not set
+  - Example: `jdbc:postgresql://aws-1-us-east-1.pooler.supabase.com:5432/postgres?sslmode=require`
+
+- **SPRING_DATASOURCE_USERNAME** (Optional): Uses `DB_USER` if not set
+- **SPRING_DATASOURCE_PASSWORD** (Optional): Uses `DB_PASSWORD` if not set
 
 ## How to Add Secrets
 
@@ -46,18 +57,23 @@ You need to add the following secrets to your GitHub repository for the workflow
      - **Secret**: Enter the secret value (e.g., `aws-1-us-east-1.pooler.supabase.com`)
      - Click "Add secret"
 
-5. **Repeat for all secrets**:
-   - Add all 5 secrets listed above
+5. **Repeat for all required secrets**:
+   - Add the 5 required secrets: `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`
+   - The Spring Boot secrets (`SPRING_DATASOURCE_*`) are optional and will use the same values
 
 ## Secret Values Summary
 
-| Secret Name | Value |
-|------------|-------|
-| `DB_HOST` | `aws-1-us-east-1.pooler.supabase.com` (or your pooler hostname) |
-| `DB_PORT` | `5432` |
-| `DB_USER` | `postgres.brettblayvzvgswearre` (or `postgres.[your-project-ref]`) |
-| `DB_PASSWORD` | `YOUR_DATABASE_PASSWORD` (get from Supabase dashboard) |
-| `DB_NAME` | `postgres` |
+| Secret Name | Required | Value |
+|------------|---------|-------|
+| `DB_HOST` | ✅ **Yes** | `aws-1-us-east-1.pooler.supabase.com` (or your pooler hostname) |
+| `DB_PORT` | ✅ **Yes** | `5432` |
+| `DB_USER` | ✅ **Yes** | `postgres.brettblayvzvgswearre` (or `postgres.[your-project-ref]`) |
+| `DB_PASSWORD` | ✅ **Yes** | `YOUR_DATABASE_PASSWORD` (get from Supabase dashboard) |
+| `DB_NAME` | ✅ **Yes** | `postgres` |
+| `SPRING_DATASOURCE_URL` | ❌ **No** | Auto-constructed from DB_* vars (don't set this) |
+| `SPRING_DATASOURCE_USERNAME` | ❌ **No** | Uses DB_USER automatically (don't set this) |
+| `SPRING_DATASOURCE_PASSWORD` | ❌ **No** | Uses DB_PASSWORD automatically (don't set this) |
+| `INTERNAL_API_TOKEN` | ❌ **No** | Defaults to `dev-internal-token` (only set if you want a custom token) |
 
 ## Testing the Secrets
 

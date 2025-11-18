@@ -88,15 +88,44 @@ jobs:
   integration:
     runs-on: ubuntu-latest
     needs: [backend, flask, frontend]
+    env:
+      DB_HOST: ${{ secrets.DB_HOST }}
+      DB_USER: ${{ secrets.DB_USER }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      DB_NAME: ${{ secrets.DB_NAME }}
+      DB_PORT: ${{ secrets.DB_PORT }}
+      SPRING_DATASOURCE_URL: ${{ secrets.SPRING_DATASOURCE_URL }}
+      SPRING_DATASOURCE_USERNAME: ${{ secrets.SPRING_DATASOURCE_USERNAME }}
+      SPRING_DATASOURCE_PASSWORD: ${{ secrets.SPRING_DATASOURCE_PASSWORD }}
+      INTERNAL_API_TOKEN: ${{ secrets.INTERNAL_API_TOKEN || 'dev-internal-token' }}
     steps:
       - uses: actions/checkout@v4
       
+      - name: Verify database secrets
+        run: |
+          if [ -z "$DB_PASSWORD" ] || [ -z "$DB_HOST" ]; then
+            echo "⚠️ Warning: Database secrets are not set. Skipping integration tests."
+            echo "To enable integration tests, set these GitHub Secrets:"
+            echo "  - DB_HOST"
+            echo "  - DB_USER"
+            echo "  - DB_PASSWORD"
+            echo "  - DB_NAME"
+            echo "  - DB_PORT"
+            echo "  - SPRING_DATASOURCE_URL (optional)"
+            echo "  - SPRING_DATASOURCE_USERNAME (optional)"
+            echo "  - SPRING_DATASOURCE_PASSWORD (optional)"
+            echo "See docs/GITHUB_SECRETS.md for details"
+            exit 0
+          fi
+      
       - name: Start services with docker-compose
+        if: env.DB_PASSWORD != ''
         working-directory: infra
         run: |
           docker compose up -d --build
       
       - name: Wait for services to be healthy
+        if: env.DB_PASSWORD != ''
         working-directory: infra
         run: |
           echo "Waiting for services to start..."
@@ -129,6 +158,7 @@ jobs:
           fi
       
       - name: Check health endpoints
+        if: env.DB_PASSWORD != ''
         run: |
           echo "Checking Flask health endpoint..."
           for i in {1..10}; do
@@ -143,6 +173,7 @@ jobs:
           curl -f http://localhost:8081/actuator/health || exit 1
       
       - name: Test API endpoints
+        if: env.DB_PASSWORD != ''
         run: |
           curl -f "http://localhost:8081/api/v1/players?page=0&size=5" || exit 1
           echo "Integration tests passed"
