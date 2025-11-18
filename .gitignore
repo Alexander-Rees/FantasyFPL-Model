@@ -74,4 +74,10 @@ backend/.mvn/
 
 # Temporary files
 .env.bak
+*.bak
+*.old
+*.tmp
 temp-elo-data/
+*.swp
+*.swo
+*~
