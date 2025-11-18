@@ -32,11 +32,8 @@ class PlayerControllerIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        // Trigger schema creation by flushing entity manager
-        // This ensures Hibernate creates all tables before we try to use them
-        entityManager.flush();
-        
-        // Create test data
+        // Schema is created by SQL scripts (schema.sql) before Hibernate validates
+        // Create test data - tables should already exist
         Player testPlayer = new Player();
         testPlayer.setName("Test Player");
         testPlayer.setPosition("MID");

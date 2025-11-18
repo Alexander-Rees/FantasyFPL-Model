@@ -1,6 +1,6 @@
 -- Test schema for H2 database
 -- Create all tables needed for tests
--- H2 in PostgreSQL mode with NON_KEYWORDS=USER allows 'user' as table name without quotes
+-- H2 with NON_KEYWORDS=USER in URL allows 'user' as table name without quotes
 CREATE TABLE IF NOT EXISTS "user" (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(255),
