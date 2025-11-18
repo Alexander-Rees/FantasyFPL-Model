@@ -58,7 +58,15 @@ def get_db_connection():
             raise ValueError("DB_PASSWORD is required but not set")
         
         # Add SSL mode for Supabase connections
-        connection = psycopg2.connect(**DB_CONFIG, sslmode='require')
+        # psycopg2 uses 'sslmode' as a connection parameter
+        connection = psycopg2.connect(
+            host=DB_CONFIG['host'],
+            port=DB_CONFIG['port'],
+            user=DB_CONFIG['user'],
+            password=DB_CONFIG['password'],
+            database=DB_CONFIG['database'],
+            sslmode='require'
+        )
         logger.info("Successfully connected to PostgreSQL database")
         return connection
     except Error as e:
@@ -187,7 +195,14 @@ def merge_data(fpl_players, elo_data):
                 how='left',
                 suffixes=('_fpl', '_elo')
             )
+            # Only keep FPL players (752), not all Elo data rows
+            # The merge with 'left' join keeps all FPL players, but we only want those
             logger.info(f"Merged data: {len(merged_df)} players (matched {merged_df[merge_key].notna().sum()} with Elo data)")
+            # Ensure we only process the FPL players (should be 752)
+            if len(merged_df) > len(fpl_df):
+                # If merge added extra rows, keep only the FPL players
+                merged_df = merged_df[merged_df['fpl_id'].notna()].drop_duplicates(subset=['fpl_id'], keep='first')
+                logger.info(f"Filtered to {len(merged_df)} unique FPL players")
         else:
             merged_df = fpl_df
             logger.info("Using FPL data only (no Elo data available)")
@@ -216,42 +231,55 @@ def update_database(players_df):
         # This updates existing players (matched by fpl_id) or inserts new ones
         # Preserves existing player.id values, so team_players references stay valid
         upsert_query = """
-        INSERT INTO player (name, position, team, fpl_id, value, total_points, weekly_points, form, selected_by_percent, elo_rating, elo_form)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        INSERT INTO player (name, position, team, fpl_id, value, total_points, weekly_points)
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
         ON CONFLICT (fpl_id) DO UPDATE SET
             name = EXCLUDED.name,
             position = EXCLUDED.position,
             team = EXCLUDED.team,
             value = EXCLUDED.value,
             total_points = EXCLUDED.total_points,
-            weekly_points = EXCLUDED.weekly_points,
-            form = EXCLUDED.form,
-            selected_by_percent = EXCLUDED.selected_by_percent,
-            elo_rating = EXCLUDED.elo_rating,
-            elo_form = EXCLUDED.elo_form
+            weekly_points = EXCLUDED.weekly_points
         """
         
         # Prepare data (don't specify id - let auto-increment handle it for new players)
+        # Handle column names that might have suffixes from merge (_fpl, _elo)
         player_data = []
         for _, player in players_df.iterrows():
+            # Get column values, handling potential suffixes from merge
+            name = player.get('name_fpl') or player.get('name') or player.get('web_name')
+            position = player.get('position_fpl') or player.get('position')
+            team = player.get('team_fpl') or player.get('team')
+            fpl_id = player.get('fpl_id')
+            value = player.get('value_fpl') or player.get('value') or 0
+            total_points = player.get('total_points_fpl') or player.get('total_points') or 0
+            weekly_points = player.get('weekly_points_fpl') or player.get('weekly_points') or player.get('event_points', 0)
+            form = player.get('form_fpl') or player.get('form') or 0
+            selected_by_percent = player.get('selected_by_percent_fpl') or player.get('selected_by_percent') or '0.0'
+            elo_rating = player.get('elo_rating') or 0
+            elo_form = player.get('elo_form') or 0
+            
             player_data.append((
-                player['name'],
-                player['position'],
-                player['team'],
-                player['fpl_id'],  # Used for matching existing players
-                player['value'],
-                player['total_points'],
-                player['weekly_points'],
-                player.get('form', 0),
-                player.get('selected_by_percent', '0.0'),
-                player.get('elo_rating', 0),
-                player.get('elo_form', 0)
+                name,
+                position,
+                team,
+                fpl_id,
+                value,
+                total_points,
+                weekly_points
             ))
         
-        # Upsert all players
-        cursor.executemany(upsert_query, player_data)
-        connection.commit()
+        # Upsert all players in batches for better performance
+        batch_size = 100
+        total_upserted = 0
+        for i in range(0, len(player_data), batch_size):
+            batch = player_data[i:i + batch_size]
+            cursor.executemany(upsert_query, batch)
+            total_upserted += len(batch)
+            if (i // batch_size) % 10 == 0:  # Log every 10 batches
+                logger.info(f"Upserted {total_upserted}/{len(player_data)} players...")
         
+        connection.commit()
         logger.info(f"Successfully upserted {len(player_data)} players")
         logger.info("✅ Player IDs preserved - team references remain intact")
         
