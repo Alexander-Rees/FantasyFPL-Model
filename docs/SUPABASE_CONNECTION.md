@@ -4,11 +4,21 @@ This document explains how to connect to your Supabase PostgreSQL database.
 
 ## Connection Details
 
+### Option 1: Connection Pooler (Recommended - Works with IPv4)
+- **Host**: Check Supabase Dashboard → Settings → Database → Connection Pooler
+- **Port**: `6543` (connection pooler port) or `5432` (transaction mode)
+- **Database**: `postgres`
+- **Username**: `postgres.[project-ref]` (with project ref) or `postgres`
+- **Password**: `YOUR_DATABASE_PASSWORD` (get from Supabase Settings → Database)
+
+### Option 2: Direct Connection (IPv6 only - requires IPv6 support)
 - **Host**: `db.brettblayvzvgswearre.supabase.co`
 - **Port**: `5432`
 - **Database**: `postgres`
 - **Username**: `postgres`
 - **Password**: `YOUR_DATABASE_PASSWORD` (get from Supabase Settings → Database)
+
+**Note**: Direct connections only work with IPv6. Use the Connection Pooler for IPv4 compatibility.
 
 ## Important: Password URL Encoding
 
@@ -52,9 +62,9 @@ connection = psycopg2.connect(
 Create a `.env` file (copy from `env.example`) with:
 
 ```bash
-DB_HOST=db.brettblayvzvgswearre.supabase.co
+DB_HOST=aws-1-us-east-1.pooler.supabase.com
 DB_PORT=5432
-DB_USER=postgres
+DB_USER=postgres.brettblayvzvgswearre
 DB_PASSWORD=YOUR_DATABASE_PASSWORD
 DB_NAME=postgres
 ```
@@ -62,9 +72,9 @@ DB_NAME=postgres
 ## GitHub Secrets
 
 For GitHub Actions, add these secrets:
-- `DB_HOST`: `db.brettblayvzvgswearre.supabase.co`
+- `DB_HOST`: `aws-1-us-east-1.pooler.supabase.com` (get from Supabase Dashboard → Connection Pooler)
 - `DB_PORT`: `5432`
-- `DB_USER`: `postgres`
+- `DB_USER`: `postgres.brettblayvzvgswearre` (format: `postgres.[project-ref]`)
 - `DB_PASSWORD`: `YOUR_DATABASE_PASSWORD` (get from Supabase dashboard)
 - `DB_NAME`: `postgres`
 

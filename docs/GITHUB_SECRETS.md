@@ -43,7 +43,7 @@ You need to add the following secrets to your GitHub repository for the workflow
    - Click "New repository secret"
    - For each secret:
      - **Name**: Enter the secret name (e.g., `DB_HOST`)
-     - **Secret**: Enter the secret value (e.g., `db.brettblayvzvgswearre.supabase.co`)
+     - **Secret**: Enter the secret value (e.g., `aws-1-us-east-1.pooler.supabase.com`)
      - Click "Add secret"
 
 5. **Repeat for all secrets**:
@@ -53,9 +53,9 @@ You need to add the following secrets to your GitHub repository for the workflow
 
 | Secret Name | Value |
 |------------|-------|
-| `DB_HOST` | `db.brettblayvzvgswearre.supabase.co` |
+| `DB_HOST` | `aws-1-us-east-1.pooler.supabase.com` (or your pooler hostname) |
 | `DB_PORT` | `5432` |
-| `DB_USER` | `postgres` |
+| `DB_USER` | `postgres.brettblayvzvgswearre` (or `postgres.[your-project-ref]`) |
 | `DB_PASSWORD` | `YOUR_DATABASE_PASSWORD` (get from Supabase dashboard) |
 | `DB_NAME` | `postgres` |
 
