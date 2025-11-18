@@ -8,15 +8,17 @@ You need to add the following secrets to your GitHub repository for the workflow
 
 ### Database Connection Secrets (for Data Ingestion)
 
-1. **DB_HOST**: `db.brettblayvzvgswearre.supabase.co`
-   - Your Supabase PostgreSQL database host
-   - Note: Use the `db.` prefix, not the API URL
+1. **DB_HOST**: `aws-1-us-east-1.pooler.supabase.com`
+   - Your Supabase connection pooler hostname
+   - Get this from: Supabase Dashboard → Settings → Database → Connection String → Session pooler
+   - Format: `aws-[number]-[region].pooler.supabase.com`
 
 2. **DB_PORT**: `5432`
-   - PostgreSQL default port
+   - Connection pooler port (5432 for transaction mode, 6543 for session mode)
 
-3. **DB_USER**: `postgres`
-   - Default PostgreSQL username
+3. **DB_USER**: `postgres.brettblayvzvgswearre`
+   - Username format: `postgres.[project-ref]`
+   - Get your project ref from Supabase Dashboard URL or connection string
 
 4. **DB_PASSWORD**: `YOUR_DATABASE_PASSWORD`
    - Your Supabase database password (the one you set when creating the project)

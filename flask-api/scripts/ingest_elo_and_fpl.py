@@ -57,7 +57,8 @@ def get_db_connection():
             logger.error("DB_PASSWORD environment variable is not set!")
             raise ValueError("DB_PASSWORD is required but not set")
         
-        connection = psycopg2.connect(**DB_CONFIG)
+        # Add SSL mode for Supabase connections
+        connection = psycopg2.connect(**DB_CONFIG, sslmode='require')
         logger.info("Successfully connected to PostgreSQL database")
         return connection
     except Error as e:
