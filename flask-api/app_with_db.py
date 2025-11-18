@@ -1,14 +1,14 @@
 """
-FPL Team Optimization API with MySQL Database Integration
+FPL Team Optimization API with PostgreSQL Database Integration
 =======================================================
 
 A comprehensive Fantasy Premier League team optimization API using enhanced ML models,
-FPL-Elo-Insights data, and MySQL database for user management and data persistence.
+FPL-Elo-Insights data, and PostgreSQL database for user management and data persistence.
 
 Features:
 - Real-time FPL data integration
 - Enhanced ML model with Elo-Insights data
-- MySQL database integration
+- PostgreSQL database integration
 - User authentication and management
 - Team management with persistence
 - Transfer suggestions
@@ -30,8 +30,8 @@ from pulp import LpMaximize, LpProblem, LpVariable, lpSum
 import time
 import logging
 from datetime import datetime
-import mysql.connector
-from mysql.connector import Error
+import psycopg2
+from psycopg2 import Error
 import hashlib
 import jwt
 from functools import wraps
@@ -51,10 +51,10 @@ app.config['SECRET_KEY'] = 'your-secret-key-change-in-production'
 # Database Configuration from env vars
 DB_CONFIG = {
     'host': os.getenv('DB_HOST', 'localhost'),
-    'database': os.getenv('DB_NAME', 'fantasy_soccer'),
-    'user': os.getenv('DB_USER', 'root'),
-    'password': os.getenv('DB_PASSWORD', 'NewPassword'),
-    'port': int(os.getenv('DB_PORT', '3306'))
+    'database': os.getenv('DB_NAME', 'postgres'),
+    'user': os.getenv('DB_USER', 'postgres'),
+    'password': os.getenv('DB_PASSWORD'),
+    'port': int(os.getenv('DB_PORT', '5432'))
 }
 
 # FPL API Configuration
@@ -79,12 +79,19 @@ position_encoder = None
 feature_columns = []
 
 def get_db_connection():
-    """Get MySQL database connection"""
+    """Get PostgreSQL database connection"""
     try:
-        connection = mysql.connector.connect(**DB_CONFIG)
+        connection = psycopg2.connect(
+            host=DB_CONFIG['host'],
+            port=DB_CONFIG['port'],
+            user=DB_CONFIG['user'],
+            password=DB_CONFIG['password'],
+            database=DB_CONFIG['database'],
+            sslmode='require'
+        )
         return connection
     except Error as e:
-        logger.error(f"Error connecting to MySQL: {e}")
+        logger.error(f"Error connecting to PostgreSQL: {e}")
         return None
 
 def load_ml_model():
@@ -481,7 +488,7 @@ def add_player_to_team(current_user_id):
 def health_check():
     """Health check endpoint"""
     return jsonify({
-        'message': 'FPL Team Optimization API with MySQL Database',
+        'message': 'FPL Team Optimization API with PostgreSQL Database',
         'status': 'healthy',
         'version': '3.0.0',
         'model_loaded': ml_model is not None,
@@ -859,7 +866,7 @@ def internal_error(error):
 if __name__ == '__main__':
     # Load ML model on startup
     if load_ml_model():
-        logger.info("🚀 FPL Team Optimization API with MySQL starting...")
+        logger.info("🚀 FPL Team Optimization API with PostgreSQL starting...")
         app.run(debug=True, host='0.0.0.0', port=5001)
     else:
         logger.error("❌ Failed to load ML model. API cannot start.")
