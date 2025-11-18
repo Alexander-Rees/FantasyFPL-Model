@@ -5,27 +5,12 @@ networks:
     driver: bridge
 
 volumes:
-  postgres_data:
   redis_data:
 
 services:
-  postgres:
-    image: postgres:16-alpine
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: ${DB_USER:-postgres}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
-      POSTGRES_DB: ${DB_NAME:-fantasy_soccer}
-    ports:
-      - "5433:5432"  # External port 5433 to avoid conflict with local PostgreSQL
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks: [app-net]
+  # Note: Using Supabase PostgreSQL (external), not local container
+  # If you want to use a local PostgreSQL container instead, uncomment the postgres service above
+  # and update backend-api and flask-ml to use 'postgres' as DB_HOST
 
   redis:
     image: redis:7-alpine
@@ -47,9 +32,9 @@ services:
       context: ../backend
       dockerfile: Dockerfile
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${DB_NAME:-fantasy_soccer}
-      SPRING_DATASOURCE_USERNAME: ${DB_USER:-postgres}
-      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-password}
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL:-jdbc:postgresql://${DB_HOST:-aws-1-us-east-1.pooler.supabase.com}:5432/${DB_NAME:-postgres}?sslmode=require}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME:-${DB_USER:-postgres.brettblayvzvgswearre}}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD:-${DB_PASSWORD}}
       FLASK_API_URL: http://flask-ml:5001
       INTERNAL_API_TOKEN: ${INTERNAL_API_TOKEN:-dev-internal-token}
       SPRING_PROFILES_ACTIVE: docker
@@ -57,8 +42,6 @@ services:
       REDIS_PORT: 6379
       REDIS_PASSWORD: ${REDIS_PASSWORD:-}
     depends_on:
-      postgres:
-        condition: service_healthy
       redis:
         condition: service_healthy
     ports:
@@ -76,17 +59,15 @@ services:
       dockerfile: Dockerfile
     environment:
       INTERNAL_API_TOKEN: ${INTERNAL_API_TOKEN:-dev-internal-token}
-      DB_HOST: postgres
-      DB_USER: ${DB_USER:-postgres}
-      DB_PASSWORD: ${DB_PASSWORD:-password}
-      DB_NAME: ${DB_NAME:-fantasy_soccer}
-      DB_PORT: 5432
+      DB_HOST: ${DB_HOST:-aws-1-us-east-1.pooler.supabase.com}
+      DB_USER: ${DB_USER:-postgres.brettblayvzvgswearre}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME:-postgres}
+      DB_PORT: ${DB_PORT:-5432}
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_PASSWORD: ${REDIS_PASSWORD:-}
     depends_on:
-      postgres:
-        condition: service_healthy
       redis:
         condition: service_healthy
     ports:
