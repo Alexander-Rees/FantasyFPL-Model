@@ -1,4 +1,4 @@
-COMPOSE=cd infra && docker compose
+COMPOSE=cd infra && docker compose --env-file ../.env
 
 .PHONY: up down logs ps build
 

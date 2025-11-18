@@ -71,3 +71,7 @@ model-files copy/
 # Maven (keep wrapper, ignore cache)
 .mvn/wrapper/maven-wrapper.jar
 backend/.mvn/
+
+# Temporary files
+.env.bak
+temp-elo-data/

@@ -1,4 +1,7 @@
 # Docker Compose file - version field is obsolete in newer versions
+# Note: .env file should be in parent directory (../.env)
+# Use: docker compose --env-file ../.env up
+# Or run from root: make up
 
 networks:
   app-net:
