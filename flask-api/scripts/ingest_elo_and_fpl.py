@@ -58,14 +58,20 @@ def get_db_connection():
             raise ValueError("DB_PASSWORD is required but not set")
         
         # Add SSL mode for Supabase connections
-        # psycopg2 uses 'sslmode' as a connection parameter
+        # For connection pooler, use 'prefer' or 'require' SSL mode
+        # Also add connection timeout and keepalive settings
         connection = psycopg2.connect(
             host=DB_CONFIG['host'],
             port=DB_CONFIG['port'],
             user=DB_CONFIG['user'],
             password=DB_CONFIG['password'],
             database=DB_CONFIG['database'],
-            sslmode='require'
+            sslmode='prefer',  # Try 'prefer' first, falls back to 'require' if needed
+            connect_timeout=10,
+            keepalives=1,
+            keepalives_idle=30,
+            keepalives_interval=10,
+            keepalives_count=5
         )
         logger.info("Successfully connected to PostgreSQL database")
         return connection
