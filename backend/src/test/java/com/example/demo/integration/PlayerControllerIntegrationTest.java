@@ -2,13 +2,13 @@ package com.example.demo.integration;
 
 import com.example.demo.model.Player;
 import com.example.demo.repository.PlayerRepository;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.transaction.TestTransaction;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +18,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
+@Transactional
 class PlayerControllerIntegrationTest {
 
     @Autowired
@@ -25,12 +26,17 @@ class PlayerControllerIntegrationTest {
 
     @Autowired
     private PlayerRepository playerRepository;
+    
+    @Autowired
+    private EntityManager entityManager;
 
     @BeforeEach
-    @Transactional
     void setUp() {
-        // Hibernate should create schema with ddl-auto=create-drop
-        // Create test data - schema will be created on first use
+        // Trigger schema creation by flushing entity manager
+        // This ensures Hibernate creates all tables before we try to use them
+        entityManager.flush();
+        
+        // Create test data
         Player testPlayer = new Player();
         testPlayer.setName("Test Player");
         testPlayer.setPosition("MID");
