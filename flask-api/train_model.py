@@ -168,12 +168,43 @@ def prepare_features(df):
     feature_df['ownership_tier'] = 1
     feature_df['form_consistency'] = 1
     
+    # Add gameweek for recency weighting
+    feature_df['gameweek'] = df['gameweek']
+    
     # Drop first row per player (no history)
     feature_df = feature_df[feature_df['minutes'] > 0] # Only train on rows where we have some history? 
     # Actually, shift(1) makes the first row NaNs or 0s.
     # We should drop rows where games_played == 0 if we want robust stats, but maybe 0 is fine.
     
     return feature_df
+
+def calculate_recency_weights(data):
+    """
+    Calculate sample weights based on recency.
+    Recent games are weighted higher to emphasize current form.
+    
+    Args:
+        data: DataFrame with 'gameweek' column
+        
+    Returns:
+        numpy array of sample weights
+    """
+    max_gw = data['gameweek'].max()
+    gw_age = max_gw - data['gameweek']
+    
+    # Exponential decay: recent games weighted higher
+    # Decay factor of 10 means games 10 GWs ago have ~37% weight
+    # Games 20 GWs ago have ~14% weight
+    weights = np.exp(-gw_age / 10.0)
+    
+    # Normalize weights to have mean of 1.0
+    weights = weights / weights.mean()
+    
+    logger.info(f"Recency weights - Min: {weights.min():.3f}, Max: {weights.max():.3f}, Mean: {weights.mean():.3f}")
+    logger.info(f"Recent 5 GWs avg weight: {weights[gw_age <= 5].mean():.3f}")
+    logger.info(f"Older (>20 GWs) avg weight: {weights[gw_age > 20].mean():.3f}")
+    
+    return weights.values
 
 def train_model():
     # 1. Load Data
@@ -222,12 +253,17 @@ def train_model():
     X = data[feature_cols].fillna(0)
     y = data['target_points'].fillna(0)
     
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    # Calculate recency weights BEFORE split
+    sample_weights = calculate_recency_weights(data)
     
-    # 6. Train Model
-    logger.info("Training Random Forest Regressor...")
+    X_train, X_test, y_train, y_test, weights_train, weights_test = train_test_split(
+        X, y, sample_weights, test_size=0.2, random_state=42
+    )
+    
+    # 6. Train Model with Recency Weighting
+    logger.info("Training Random Forest Regressor with recency weighting...")
     model = RandomForestRegressor(n_estimators=100, random_state=42, n_jobs=-1)
-    model.fit(X_train, y_train)
+    model.fit(X_train, y_train, sample_weight=weights_train)
     
     # 7. Evaluate
     train_score = model.score(X_train, y_train)
