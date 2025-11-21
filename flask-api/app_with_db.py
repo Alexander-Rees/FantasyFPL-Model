@@ -30,8 +30,13 @@ from pulp import LpMaximize, LpProblem, LpVariable, lpSum
 import time
 import logging
 from datetime import datetime
-import psycopg2
-from psycopg2 import Error
+try:
+    import psycopg2
+    from psycopg2 import Error
+    PSYCOPG2_AVAILABLE = True
+except ImportError:
+    PSYCOPG2_AVAILABLE = False
+    Error = Exception
 import hashlib
 import jwt
 from functools import wraps
@@ -80,6 +85,9 @@ feature_columns = []
 
 def get_db_connection():
     """Get PostgreSQL database connection"""
+    if not PSYCOPG2_AVAILABLE:
+        logger.warning("psycopg2 not available - database features disabled")
+        return None
     try:
         connection = psycopg2.connect(
             host=DB_CONFIG['host'],
@@ -232,6 +240,34 @@ def token_required(f):
     """Decorator to require JWT token for protected routes"""
     @wraps(f)
     def decorated(*args, **kwargs):
+        token = request.headers.get('Authorization')
+        if not token:
+            return jsonify({'message': 'Token is missing!'}), 401
+        
+        try:
+            if token.startswith('Bearer '):
+                token = token[7:]
+            data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+            current_user_id = data['user_id']
+        except:
+            return jsonify({'message': 'Token is invalid!'}), 401
+        
+        return f(current_user_id, *args, **kwargs)
+    return decorated
+
+def internal_or_token_required(f):
+    """Decorator that accepts either X-Internal-Token (service-to-service) or JWT token"""
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        # Check for internal token first (service-to-service)
+        internal_token = request.headers.get('X-Internal-Token')
+        expected_internal = os.getenv('INTERNAL_API_TOKEN', 'dev-internal-token')
+        
+        if internal_token and internal_token == expected_internal:
+            # Service-to-service call, use None for user_id
+            return f(None, *args, **kwargs)
+        
+        # Otherwise, require JWT token
         token = request.headers.get('Authorization')
         if not token:
             return jsonify({'message': 'Token is missing!'}), 401
@@ -584,7 +620,7 @@ def get_predictions():
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/optimize', methods=['POST'])
-@token_required
+@internal_or_token_required
 def optimize_team(current_user_id):
     """Optimize team using ML predictions and constraints"""
     try:
@@ -594,15 +630,67 @@ def optimize_team(current_user_id):
         data = request.get_json()
         budget = data.get('budget', 100.0)
         free_transfers = data.get('free_transfers', 1)
+        formation = data.get('formation', '3-4-3')
+        provided_players = data.get('players', [])
+        current_team = data.get('current_team', [])
+        locked_players = data.get('locked_players', [])
+        avoid_players = data.get('avoid_players', [])
         
-        logger.info(f"Optimizing team for user {current_user_id} - budget: {budget}, transfers: {free_transfers}")
+        # Generate cache key
+        cache_key_data = json.dumps({
+            'budget': budget,
+            'free_transfers': free_transfers,
+            'formation': formation,
+            'locked_players': sorted(locked_players) if locked_players else [],
+            'avoid_players': sorted(avoid_players) if avoid_players else [],
+            'player_count': len(provided_players) if provided_players else 0
+        }, sort_keys=True)
+        cache_key_hash = hashlib.md5(cache_key_data.encode()).hexdigest()
+        cache_key = f"optimization:{cache_key_hash}"
         
-        # Get player predictions
-        predictions_response = get_predictions()
-        if predictions_response[1] != 200:
-            return predictions_response
+        # Try cache first
+        redis_client = get_redis_client()
+        if redis_client:
+            try:
+                cached = redis_client.get(cache_key)
+                if cached:
+                    logger.info(f"Cache HIT: {cache_key}")
+                    return jsonify(json.loads(cached))
+            except Exception as e:
+                logger.warning(f"Cache read error: {e}")
         
-        players_data = predictions_response[0].json['players']
+        logger.info(f"ML optimization request: {len(provided_players) if provided_players else 'FPL API'} players, budget: {budget}, transfers: {free_transfers}, formation: {formation}")
+        
+        # Get player data - either use provided players or fetch from FPL API
+        if provided_players:
+            # Use provided players from Spring Boot
+            players_data = provided_players
+            # Need to get ML predictions for these players
+            # For now, use total_points as predicted_points if not available
+            for player in players_data:
+                if 'predicted_points' not in player:
+                    player['predicted_points'] = player.get('total_points', 0)
+        else:
+            # Fetch from FPL API and get predictions
+            predictions_response = get_predictions()
+            if predictions_response[1] != 200:
+                return predictions_response
+            players_data = predictions_response[0].json['players']
+        
+        # Filter out avoid players
+        if avoid_players:
+            avoid_ids = set(avoid_players)
+            players_data = [p for p in players_data if p.get('id') not in avoid_ids]
+        
+        # Formation map for starting XI
+        formation_map = {
+            '3-4-3': {'GK': 1, 'DEF': 3, 'MID': 4, 'FWD': 3},
+            '3-5-2': {'GK': 1, 'DEF': 3, 'MID': 5, 'FWD': 2},
+            '4-4-2': {'GK': 1, 'DEF': 4, 'MID': 4, 'FWD': 2},
+            '4-3-3': {'GK': 1, 'DEF': 4, 'MID': 3, 'FWD': 3},
+            '5-4-1': {'GK': 1, 'DEF': 5, 'MID': 4, 'FWD': 1}
+        }
+        position_limits = formation_map.get(formation, {'GK': 1, 'DEF': 3, 'MID': 4, 'FWD': 3})
         
         # Create optimization problem
         problem = LpProblem("FPL_Team_Optimization", LpMaximize)
@@ -613,27 +701,37 @@ def optimize_team(current_user_id):
             player_vars[player['id']] = LpVariable(f"player_{player['id']}", cat='Binary')
         
         # Objective: Maximize predicted points
-        problem += lpSum([player_vars[player['id']] * player['predicted_points'] for player in players_data])
+        problem += lpSum([player_vars[player['id']] * player.get('predicted_points', player.get('total_points', 0)) for player in players_data])
         
-        # Position constraints
+        # Starting XI position constraints based on formation
         gk_players = [p for p in players_data if p['position'] == 'GK']
         def_players = [p for p in players_data if p['position'] == 'DEF']
         mid_players = [p for p in players_data if p['position'] == 'MID']
         fwd_players = [p for p in players_data if p['position'] == 'FWD']
         
-        problem += lpSum([player_vars[p['id']] for p in gk_players]) == 2  # 2 goalkeepers
-        problem += lpSum([player_vars[p['id']] for p in def_players]) == 5  # 5 defenders
-        problem += lpSum([player_vars[p['id']] for p in mid_players]) == 5  # 5 midfielders
-        problem += lpSum([player_vars[p['id']] for p in fwd_players]) == 3  # 3 forwards
+        problem += lpSum([player_vars[p['id']] for p in gk_players]) == position_limits['GK']  # Starting GK
+        problem += lpSum([player_vars[p['id']] for p in def_players]) == position_limits['DEF']  # Starting DEF
+        problem += lpSum([player_vars[p['id']] for p in mid_players]) == position_limits['MID']  # Starting MID
+        problem += lpSum([player_vars[p['id']] for p in fwd_players]) == position_limits['FWD']  # Starting FWD
+        
+        # Total squad size (11 starting + 4 bench = 15)
+        problem += lpSum([player_vars[player['id']] for player in players_data]) == 15
         
         # Budget constraint
-        problem += lpSum([player_vars[player['id']] * player['value'] for player in players_data]) <= budget
+        problem += lpSum([player_vars[player['id']] * player.get('value', 0) for player in players_data]) <= budget
         
         # Team limit constraint (max 3 players per team)
-        teams = list(set([p['team'] for p in players_data]))
+        teams = list(set([p.get('team', '') for p in players_data]))
         for team in teams:
-            team_players = [p for p in players_data if p['team'] == team]
-            problem += lpSum([player_vars[p['id']] for p in team_players]) <= 3
+            if team:  # Skip empty team names
+                team_players = [p for p in players_data if p.get('team') == team]
+                problem += lpSum([player_vars[p['id']] for p in team_players]) <= 3
+        
+        # Locked players constraint
+        if locked_players:
+            for player_id in locked_players:
+                if player_id in player_vars:
+                    problem += player_vars[player_id] == 1
         
         # Solve the problem
         problem.solve()
@@ -641,34 +739,78 @@ def optimize_team(current_user_id):
         # Get selected players
         selected_players = []
         for player in players_data:
-            if player_vars[player['id']].varValue > 0.5:
+            if player_vars[player['id']].varValue and player_vars[player['id']].varValue > 0.5:
                 selected_players.append(player)
         
-        # Calculate team stats
-        total_value = sum(p['value'] for p in selected_players)
-        total_predicted_points = sum(p['predicted_points'] for p in selected_players)
+        # Separate starting XI and bench
+        # Starting XI: top players by predicted points up to formation limits
+        selected_players.sort(key=lambda x: x.get('predicted_points', x.get('total_points', 0)), reverse=True)
+        
+        optimal_team = []
+        bench = []
+        position_counts = {'GK': 0, 'DEF': 0, 'MID': 0, 'FWD': 0}
+        
+        for player in selected_players:
+            pos = player.get('position', '')
+            if pos in position_counts and position_counts[pos] < position_limits[pos]:
+                optimal_team.append(player)
+                position_counts[pos] += 1
+            elif len(bench) < 4:
+                bench.append(player)
+        
+        # Select captain and vice-captain
+        captain = max(optimal_team, key=lambda x: x.get('predicted_points', x.get('total_points', 0))) if optimal_team else None
+        vice_captain = max([p for p in optimal_team if p.get('id') != captain.get('id')], 
+                          key=lambda x: x.get('predicted_points', x.get('total_points', 0)), default=captain) if optimal_team and captain else None
+        
+        # Generate transfer suggestions
+        transfers = []
+        if free_transfers > 0 and current_team:
+            current_team_sorted = sorted(current_team, key=lambda x: x.get('total_points', 0))
+            for i in range(min(free_transfers, len(current_team_sorted))):
+                player_out = current_team_sorted[i]
+                # Find better replacement in same position
+                better_players = [p for p in optimal_team 
+                                if p.get('position') == player_out.get('position') 
+                                and p.get('predicted_points', p.get('total_points', 0)) > player_out.get('total_points', 0)]
+                if better_players:
+                    player_in = better_players[0]
+                    transfers.append({
+                        'player_out': player_out,
+                        'player_in': player_in,
+                        'cost': player_in.get('value', 0) - player_out.get('value', 0),
+                        'reason': f"Upgrade from {player_out.get('total_points', 0)} to {player_in.get('predicted_points', player_in.get('total_points', 0))} predicted points"
+                    })
+        
+        # Calculate totals
+        total_value = sum(p.get('value', 0) for p in optimal_team)
+        total_points = sum(p.get('predicted_points', p.get('total_points', 0)) for p in optimal_team)
         
         result = {
-            'selected_team': selected_players,
+            'optimal_team': optimal_team,
+            'bench': bench,
+            'captain': captain,
+            'vice_captain': vice_captain,
+            'transfers': transfers,
             'total_value': total_value,
-            'total_predicted_points': total_predicted_points,
-            'budget_remaining': budget - total_value,
-            'optimization_status': 'optimal' if problem.status == 1 else 'suboptimal',
-            'model_type': 'Enhanced Random Forest with Elo-Insights',
-            'constraints': {
-                'budget': budget,
-                'free_transfers': free_transfers,
-                'position_limits': {'GK': 2, 'DEF': 5, 'MID': 5, 'FWD': 3},
-                'team_limit': 3
-            },
-            'timestamp': datetime.now().isoformat()
+            'total_points': int(total_points),
+            'formation': formation
         }
         
-        logger.info(f"Team optimization completed: {len(selected_players)} players, {total_value:.1f}M value, {total_predicted_points:.1f} predicted points")
+        # Store in cache (30 min TTL)
+        if redis_client:
+            try:
+                redis_client.setex(cache_key, 1800, json.dumps(result))
+            except Exception as e:
+                logger.warning(f"Cache write error: {e}")
+        
+        logger.info(f"ML optimization completed: {len(optimal_team)} starting XI, {len(bench)} bench, {total_value:.1f}M value, {total_points:.1f} predicted points")
         return jsonify(result)
         
     except Exception as e:
         logger.error(f"Error in optimize_team: {e}")
+        import traceback
+        traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
 # Prometheus metrics
@@ -713,145 +855,7 @@ def health():
 def metrics():
     return generate_latest(), 200, {'Content-Type': CONTENT_TYPE_LATEST}
 
-# ML Optimization endpoint for Spring Boot
-@app.route('/_ml/optimize', methods=['POST'])
-def ml_optimize():
-    """
-    Internal ML optimization endpoint called by Spring Boot
-    """
-    try:
-        # validate internal token
-        expected = os.getenv('INTERNAL_API_TOKEN', 'dev-internal-token')
-        got = request.headers.get('X-Internal-Token')
-        if not got or got != expected:
-            return jsonify({'error': 'unauthorized'}), 401
-        data = request.get_json()
-        
-        # Extract data from Spring Boot request
-        players = data.get('players', [])
-        current_team = data.get('current_team', [])
-        budget = data.get('budget', 100.0)
-        free_transfers = data.get('free_transfers', 1)
-        locked_players = data.get('locked_players', [])
-        avoid_players = data.get('avoid_players', [])
-        formation = data.get('formation', '3-4-3')
-        
-        # Generate cache key from request
-        cache_key_data = json.dumps({
-            'budget': budget,
-            'free_transfers': free_transfers,
-            'formation': formation,
-            'locked_players': sorted(locked_players) if locked_players else [],
-            'avoid_players': sorted(avoid_players) if avoid_players else [],
-            'player_count': len(players)
-        }, sort_keys=True)
-        cache_key_hash = hashlib.md5(cache_key_data.encode()).hexdigest()
-        cache_key = f"optimization:{cache_key_hash}"
-        
-        # Try cache first
-        redis_client = get_redis_client()
-        if redis_client:
-            try:
-                cached = redis_client.get(cache_key)
-                if cached:
-                    logger.info(f"Cache HIT: {cache_key}")
-                    cache_hits.labels(cache_name='optimization').inc()
-                    return jsonify(json.loads(cached))
-                cache_misses.labels(cache_name='optimization').inc()
-            except Exception as e:
-                logger.warning(f"Cache read error: {e}")
-        
-        logger.info(f"ML optimization request: {len(players)} players, budget: {budget}, transfers: {free_transfers}")
-        
-        # Convert to DataFrame for optimization
-        df = pd.DataFrame(players)
-        if df.empty:
-            return jsonify({'error': 'No players provided'}), 400
-        
-        # Basic optimization logic (simplified for now)
-        # In a real implementation, this would use the trained ML model
-        optimal_team = []
-        bench = []
-        
-        # Simple selection based on total points and value
-        df_sorted = df.sort_values(['total_points', 'value'], ascending=[False, True])
-        
-        # Select by position based on formation
-        formation_map = {
-            '3-4-3': {'GK': 1, 'DEF': 3, 'MID': 4, 'FWD': 3},
-            '3-5-2': {'GK': 1, 'DEF': 3, 'MID': 5, 'FWD': 2},
-            '4-4-2': {'GK': 1, 'DEF': 4, 'MID': 4, 'FWD': 2},
-            '4-3-3': {'GK': 1, 'DEF': 4, 'MID': 3, 'FWD': 3},
-            '5-4-1': {'GK': 1, 'DEF': 5, 'MID': 4, 'FWD': 1}
-        }
-        
-        position_limits = formation_map.get(formation, {'GK': 1, 'DEF': 3, 'MID': 4, 'FWD': 3})
-        
-        # Select optimal team
-        for position, limit in position_limits.items():
-            position_players = df_sorted[df_sorted['position'] == position].head(limit)
-            for _, player in position_players.iterrows():
-                optimal_team.append(player.to_dict())
-        
-        # Select bench (remaining players)
-        selected_ids = [p['id'] for p in optimal_team]
-        bench_players = df_sorted[~df_sorted['id'].isin(selected_ids)].head(4)
-        for _, player in bench_players.iterrows():
-            bench.append(player.to_dict())
-        
-        # Select captain and vice-captain
-        captain = max(optimal_team, key=lambda x: x['total_points'])
-        vice_captain = max([p for p in optimal_team if p['id'] != captain['id']], 
-                          key=lambda x: x['total_points'], default=captain)
-        
-        # Calculate totals
-        total_value = sum(p['value'] for p in optimal_team)
-        total_points = sum(p['total_points'] for p in optimal_team)
-        
-        # Generate transfer suggestions (simplified)
-        transfers = []
-        if free_transfers > 0 and current_team:
-            # Simple transfer logic: suggest replacing lowest scoring players
-            current_team_sorted = sorted(current_team, key=lambda x: x['total_points'])
-            for i in range(min(free_transfers, len(current_team_sorted))):
-                player_out = current_team_sorted[i]
-                # Find better replacement
-                better_players = [p for p in optimal_team 
-                                if p['position'] == player_out['position'] 
-                                and p['total_points'] > player_out['total_points']]
-                if better_players:
-                    player_in = better_players[0]
-                    transfers.append({
-                        'player_out': player_out,
-                        'player_in': player_in,
-                        'cost': player_in['value'] - player_out['value'],
-                        'reason': f"Upgrade from {player_out['total_points']} to {player_in['total_points']} points"
-                    })
-        
-        result = {
-            'optimal_team': optimal_team,
-            'bench': bench,
-            'captain': captain,
-            'vice_captain': vice_captain,
-            'transfers': transfers,
-            'total_value': total_value,
-            'total_points': total_points,
-            'formation': formation
-        }
-        
-        # Store in cache (30 min TTL)
-        if redis_client:
-            try:
-                redis_client.setex(cache_key, 1800, json.dumps(result))
-            except Exception as e:
-                logger.warning(f"Cache write error: {e}")
-        
-        logger.info(f"ML optimization completed: {len(optimal_team)} players, {total_value:.1f}M value")
-        return jsonify(result)
-        
-    except Exception as e:
-        logger.error(f"Error in ML optimization: {e}")
-        return jsonify({'error': str(e)}), 500
+# Removed /_ml/optimize endpoint - now using /api/optimize which supports both JWT and X-Internal-Token
 
 # Error handlers
 @app.errorhandler(404)

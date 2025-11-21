@@ -82,3 +82,15 @@ temp-elo-data/
 *.swo
 *~
 flask-api/models/*.joblib
+
+# Generated predictions
+flask-api/predictions.csv
+
+# IDE files
+.cursor/
+
+# Debug/test scripts
+flask-api/check_db.py
+flask-api/test_ml_simple.py
+flask-api/test_optimize.py
+inspect_data.py
