@@ -45,8 +45,9 @@ public class Player {
         this.totalPoints = totalPoints;
         this.weeklyPoints = weeklyPoints;
     }
-    
-    public Player(Long id, String name, String position, String team, Long fplId, double value, int totalPoints, int weeklyPoints) {
+
+    public Player(Long id, String name, String position, String team, Long fplId, double value, int totalPoints,
+            int weeklyPoints) {
         this.id = id;
         this.name = name;
         this.position = position;
@@ -121,12 +122,23 @@ public class Player {
     public void setTeams(List<Team> teams) {
         this.teams = teams;
     }
-    
+
     public Long getFplId() {
         return fplId;
     }
-    
+
     public void setFplId(Long fplId) {
         this.fplId = fplId;
+    }
+
+    // Predicted Points
+    private double predictedPoints = 0.0;
+
+    public double getPredictedPoints() {
+        return predictedPoints;
+    }
+
+    public void setPredictedPoints(double predictedPoints) {
+        this.predictedPoints = predictedPoints;
     }
 }

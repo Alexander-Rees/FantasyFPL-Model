@@ -11,10 +11,10 @@ public class PlayerDTO {
     private String position; // Ensure consistency with the Player model
     private double value; // Player's current value (cost)
 
-    @JsonProperty("total_points")
+    @JsonProperty("totalPoints")
     private int totalPoints; // Total points for the season
 
-    @JsonProperty("event_points")
+    @JsonProperty("weeklyPoints")
     private int weeklyPoints; // Points for the most recent gameweek
 
     @JsonProperty("fplId")
@@ -83,5 +83,16 @@ public class PlayerDTO {
 
     public void setFplId(Long fplId) {
         this.fplId = fplId;
+    }
+
+    @JsonProperty("predictedPoints")
+    private double predictedPoints;
+
+    public double getPredictedPoints() {
+        return predictedPoints;
+    }
+
+    public void setPredictedPoints(double predictedPoints) {
+        this.predictedPoints = predictedPoints;
     }
 }

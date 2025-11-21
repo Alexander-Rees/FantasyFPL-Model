@@ -69,13 +69,13 @@ public class TeamOptimizationService {
             // Get all players for the optimization pool
             List<Player> allPlayers = playerRepository.findAll();
             List<PlayerDTO> playerPool = allPlayers.stream()
-                .map(playerDataService::convertToDTO)
-                .collect(Collectors.toList());
+                    .map(playerDataService::convertToDTO)
+                    .collect(Collectors.toList());
 
             // Get current team players
             List<PlayerDTO> currentTeamPlayers = currentTeam.getPlayers().stream()
-                .map(playerDataService::convertToDTO)
-                .collect(Collectors.toList());
+                    .map(playerDataService::convertToDTO)
+                    .collect(Collectors.toList());
 
             System.out.println("Player pool size: " + playerPool.size());
             System.out.println("Current team size: " + currentTeamPlayers.size());
@@ -86,11 +86,13 @@ public class TeamOptimizationService {
             flaskRequest.put("current_team", currentTeamPlayers);
             flaskRequest.put("budget", request.getBudget() != null ? request.getBudget() : 100.0);
             flaskRequest.put("free_transfers", request.getFreeTransfers() != null ? request.getFreeTransfers() : 1);
-            flaskRequest.put("locked_players", request.getLockedPlayers() != null ? request.getLockedPlayers() : new ArrayList<>());
-            flaskRequest.put("avoid_players", request.getAvoidPlayers() != null ? request.getAvoidPlayers() : new ArrayList<>());
+            flaskRequest.put("locked_players",
+                    request.getLockedPlayers() != null ? request.getLockedPlayers() : new ArrayList<>());
+            flaskRequest.put("avoid_players",
+                    request.getAvoidPlayers() != null ? request.getAvoidPlayers() : new ArrayList<>());
             flaskRequest.put("formation", request.getFormation() != null ? request.getFormation() : "3-4-3");
 
-            System.out.println("Calling Flask API at: " + flaskApiUrl + "/_ml/optimize");
+            System.out.println("Calling Flask API at: " + flaskApiUrl + "/api/optimize");
 
             // Call Flask ML API with resilience patterns
             Map<String, Object> flaskResponse = callFlaskOptimization(flaskRequest);
@@ -116,7 +118,7 @@ public class TeamOptimizationService {
         headers.add("X-Internal-Token", internalToken);
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(flaskRequest, headers);
 
-        String optimizeUrl = flaskApiUrl + "/_ml/optimize";
+        String optimizeUrl = flaskApiUrl + "/api/optimize";
         ResponseEntity<Map> response = restTemplate.postForEntity(optimizeUrl, entity, Map.class);
 
         System.out.println("Flask API response status: " + response.getStatusCode());
@@ -136,7 +138,7 @@ public class TeamOptimizationService {
 
     private OptimizeResponseDTO parseFlaskResponse(Map<String, Object> response) {
         System.out.println("Parsing Flask response: " + response);
-        
+
         // Parse the response from Flask ML API with null checks
         List<Map<String, Object>> optimalTeamData = (List<Map<String, Object>>) response.get("optimal_team");
         List<Map<String, Object>> benchData = (List<Map<String, Object>>) response.get("bench");
@@ -144,34 +146,39 @@ public class TeamOptimizationService {
         Map<String, Object> viceCaptainData = (Map<String, Object>) response.get("vice_captain");
         List<Map<String, Object>> transfersData = (List<Map<String, Object>>) response.get("transfers");
 
-        List<PlayerDTO> optimalTeam = optimalTeamData != null ? convertToPlayerDTOs(optimalTeamData) : new ArrayList<>();
+        List<PlayerDTO> optimalTeam = optimalTeamData != null ? convertToPlayerDTOs(optimalTeamData)
+                : new ArrayList<>();
         List<PlayerDTO> bench = benchData != null ? convertToPlayerDTOs(benchData) : new ArrayList<>();
         PlayerDTO captain = captainData != null ? convertToPlayerDTO(captainData) : null;
         PlayerDTO viceCaptain = viceCaptainData != null ? convertToPlayerDTO(viceCaptainData) : null;
         List<TransferDTO> transfers = transfersData != null ? convertToTransferDTOs(transfersData) : new ArrayList<>();
 
-        Double totalValue = response.get("total_value") != null ? ((Number) response.get("total_value")).doubleValue() : 0.0;
-        Integer totalPoints = response.get("total_points") != null ? ((Number) response.get("total_points")).intValue() : 0;
+        Double totalValue = response.get("total_value") != null ? ((Number) response.get("total_value")).doubleValue()
+                : 0.0;
+        Integer totalPoints = response.get("total_points") != null ? ((Number) response.get("total_points")).intValue()
+                : 0;
         String formation = (String) response.get("formation");
 
         System.out.println("Parsed response - optimalTeam: " + optimalTeam.size() + ", transfers: " + transfers.size());
-        
-        return new OptimizeResponseDTO(optimalTeam, bench, captain, viceCaptain, 
-                                     transfers, totalValue, totalPoints, formation);
+
+        return new OptimizeResponseDTO(optimalTeam, bench, captain, viceCaptain,
+                transfers, totalValue, totalPoints, formation);
     }
 
     private List<PlayerDTO> convertToPlayerDTOs(List<Map<String, Object>> playerData) {
-        if (playerData == null) return new ArrayList<>();
-        
+        if (playerData == null)
+            return new ArrayList<>();
+
         return playerData.stream()
-            .map(this::convertToPlayerDTO)
-            .filter(Objects::nonNull)
-            .collect(Collectors.toList());
+                .map(this::convertToPlayerDTO)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
     private PlayerDTO convertToPlayerDTO(Map<String, Object> playerData) {
-        if (playerData == null) return null;
-        
+        if (playerData == null)
+            return null;
+
         PlayerDTO dto = new PlayerDTO();
         dto.setId(((Number) playerData.get("id")).longValue());
         dto.setName((String) playerData.get("name"));
@@ -181,26 +188,32 @@ public class TeamOptimizationService {
         dto.setTotalPoints(((Number) playerData.get("total_points")).intValue());
         dto.setWeeklyPoints(((Number) playerData.get("weekly_points")).intValue());
         dto.setFplId(((Number) playerData.get("fplId")).longValue());
+        // Handle potential null for predicted_points if Flask doesn't return it
+        if (playerData.containsKey("predicted_points") && playerData.get("predicted_points") != null) {
+            dto.setPredictedPoints(((Number) playerData.get("predicted_points")).doubleValue());
+        }
         return dto;
     }
 
     private List<TransferDTO> convertToTransferDTOs(List<Map<String, Object>> transfersData) {
-        if (transfersData == null) return new ArrayList<>();
-        
+        if (transfersData == null)
+            return new ArrayList<>();
+
         return transfersData.stream()
-            .map(this::convertToTransferDTO)
-            .filter(Objects::nonNull)
-            .collect(Collectors.toList());
+                .map(this::convertToTransferDTO)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
     private TransferDTO convertToTransferDTO(Map<String, Object> transferData) {
-        if (transferData == null) return null;
-        
+        if (transferData == null)
+            return null;
+
         PlayerDTO playerOut = convertToPlayerDTO((Map<String, Object>) transferData.get("player_out"));
         PlayerDTO playerIn = convertToPlayerDTO((Map<String, Object>) transferData.get("player_in"));
         Double cost = ((Number) transferData.get("cost")).doubleValue();
         String reason = (String) transferData.get("reason");
-        
+
         return new TransferDTO(playerOut, playerIn, cost, reason);
     }
 
@@ -208,13 +221,13 @@ public class TeamOptimizationService {
         // Get all players for the optimization pool
         List<Player> allPlayers = playerRepository.findAll();
         List<PlayerDTO> playerPool = allPlayers.stream()
-            .map(playerDataService::convertToDTO)
-            .collect(Collectors.toList());
+                .map(playerDataService::convertToDTO)
+                .collect(Collectors.toList());
 
         // Sort players by total points (descending) and value (ascending)
         playerPool.sort(Comparator
-            .comparing(PlayerDTO::getTotalPoints).reversed()
-            .thenComparing(PlayerDTO::getValue));
+                .comparing(PlayerDTO::getTotalPoints).reversed()
+                .thenComparing(PlayerDTO::getValue));
 
         List<PlayerDTO> optimalTeam = new ArrayList<>();
         List<PlayerDTO> bench = new ArrayList<>();
@@ -225,22 +238,40 @@ public class TeamOptimizationService {
         Map<String, Integer> positionLimits = new HashMap<>();
         switch (formation) {
             case "3-4-3":
-                positionLimits.put("GK", 1); positionLimits.put("DEF", 3); positionLimits.put("MID", 4); positionLimits.put("FWD", 3);
+                positionLimits.put("GK", 1);
+                positionLimits.put("DEF", 3);
+                positionLimits.put("MID", 4);
+                positionLimits.put("FWD", 3);
                 break;
             case "3-5-2":
-                positionLimits.put("GK", 1); positionLimits.put("DEF", 3); positionLimits.put("MID", 5); positionLimits.put("FWD", 2);
+                positionLimits.put("GK", 1);
+                positionLimits.put("DEF", 3);
+                positionLimits.put("MID", 5);
+                positionLimits.put("FWD", 2);
                 break;
             case "4-4-2":
-                positionLimits.put("GK", 1); positionLimits.put("DEF", 4); positionLimits.put("MID", 4); positionLimits.put("FWD", 2);
+                positionLimits.put("GK", 1);
+                positionLimits.put("DEF", 4);
+                positionLimits.put("MID", 4);
+                positionLimits.put("FWD", 2);
                 break;
             case "4-3-3":
-                positionLimits.put("GK", 1); positionLimits.put("DEF", 4); positionLimits.put("MID", 3); positionLimits.put("FWD", 3);
+                positionLimits.put("GK", 1);
+                positionLimits.put("DEF", 4);
+                positionLimits.put("MID", 3);
+                positionLimits.put("FWD", 3);
                 break;
             case "5-4-1":
-                positionLimits.put("GK", 1); positionLimits.put("DEF", 5); positionLimits.put("MID", 4); positionLimits.put("FWD", 1);
+                positionLimits.put("GK", 1);
+                positionLimits.put("DEF", 5);
+                positionLimits.put("MID", 4);
+                positionLimits.put("FWD", 1);
                 break;
             default: // Default to 3-4-3
-                positionLimits.put("GK", 1); positionLimits.put("DEF", 3); positionLimits.put("MID", 4); positionLimits.put("FWD", 3);
+                positionLimits.put("GK", 1);
+                positionLimits.put("DEF", 3);
+                positionLimits.put("MID", 4);
+                positionLimits.put("FWD", 3);
                 break;
         }
 
@@ -252,13 +283,15 @@ public class TeamOptimizationService {
         Set<Long> selectedPlayerIds = new HashSet<>();
         for (PlayerDTO player : playerPool) {
             String position = player.getPosition();
-            if (positionLimits.containsKey(position) && selectedPositions.get(position) < positionLimits.get(position) && currentBudget >= player.getValue()) {
+            if (positionLimits.containsKey(position) && selectedPositions.get(position) < positionLimits.get(position)
+                    && currentBudget >= player.getValue()) {
                 optimalTeam.add(player);
                 selectedPlayerIds.add(player.getId());
                 selectedPositions.put(position, selectedPositions.get(position) + 1);
                 currentBudget -= player.getValue();
             }
-            if (optimalTeam.size() == 11) break;
+            if (optimalTeam.size() == 11)
+                break;
         }
 
         // Fill bench with remaining top players
@@ -267,31 +300,35 @@ public class TeamOptimizationService {
                 bench.add(player);
                 selectedPlayerIds.add(player.getId());
             }
-            if (bench.size() == 4) break;
+            if (bench.size() == 4)
+                break;
         }
 
         // Simple captain/vice-captain selection
         PlayerDTO captain = optimalTeam.isEmpty() ? null : optimalTeam.get(0);
         PlayerDTO viceCaptain = optimalTeam.size() < 2 ? null : optimalTeam.get(1);
 
-        // Simple transfer suggestions (replace lowest scoring current team players with highest scoring available players)
+        // Simple transfer suggestions (replace lowest scoring current team players with
+        // highest scoring available players)
         List<TransferDTO> transfers = new ArrayList<>();
         if (freeTransfers > 0 && currentTeam != null && !currentTeam.getPlayers().isEmpty()) {
             List<PlayerDTO> currentTeamPlayers = currentTeam.getPlayers().stream()
-                .map(playerDataService::convertToDTO)
-                .sorted(Comparator.comparing(PlayerDTO::getTotalPoints)) // Sort by lowest points
-                .collect(Collectors.toList());
+                    .map(playerDataService::convertToDTO)
+                    .sorted(Comparator.comparing(PlayerDTO::getTotalPoints)) // Sort by lowest points
+                    .collect(Collectors.toList());
 
             List<PlayerDTO> availablePlayers = playerPool.stream()
-                .filter(p -> !selectedPlayerIds.contains(p.getId()))
-                .sorted(Comparator.comparing(PlayerDTO::getTotalPoints).reversed()) // Sort by highest points
-                .collect(Collectors.toList());
+                    .filter(p -> !selectedPlayerIds.contains(p.getId()))
+                    .sorted(Comparator.comparing(PlayerDTO::getTotalPoints).reversed()) // Sort by highest points
+                    .collect(Collectors.toList());
 
             for (int i = 0; i < Math.min(freeTransfers, currentTeamPlayers.size()); i++) {
                 PlayerDTO playerOut = currentTeamPlayers.get(i);
                 for (PlayerDTO playerIn : availablePlayers) {
-                    if (playerIn.getPosition().equals(playerOut.getPosition()) && playerIn.getValue() <= (currentBudget + playerOut.getValue())) {
-                        transfers.add(new TransferDTO(playerOut, playerIn, playerIn.getValue() - playerOut.getValue(), "Fallback transfer suggestion"));
+                    if (playerIn.getPosition().equals(playerOut.getPosition())
+                            && playerIn.getValue() <= (currentBudget + playerOut.getValue())) {
+                        transfers.add(new TransferDTO(playerOut, playerIn, playerIn.getValue() - playerOut.getValue(),
+                                "Fallback transfer suggestion"));
                         currentBudget += (playerOut.getValue() - playerIn.getValue());
                         availablePlayers.remove(playerIn);
                         break;
@@ -303,6 +340,7 @@ public class TeamOptimizationService {
         Double totalValue = optimalTeam.stream().mapToDouble(PlayerDTO::getValue).sum();
         Integer totalPoints = optimalTeam.stream().mapToInt(PlayerDTO::getTotalPoints).sum();
 
-        return new OptimizeResponseDTO(optimalTeam, bench, captain, viceCaptain, transfers, totalValue, totalPoints, formation);
+        return new OptimizeResponseDTO(optimalTeam, bench, captain, viceCaptain, transfers, totalValue, totalPoints,
+                formation);
     }
 }

@@ -38,6 +38,7 @@ public class PlayerDataService {
         dto.setTotalPoints(player.getTotalPoints());
         dto.setWeeklyPoints(player.getWeeklyPoints());
         dto.setFplId(player.getFplId());
+        dto.setPredictedPoints(player.getPredictedPoints());
         return dto;
     }
 }

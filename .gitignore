@@ -81,3 +81,4 @@ temp-elo-data/
 *.swp
 *.swo
 *~
+flask-api/models/*.joblib

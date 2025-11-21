@@ -31,7 +31,7 @@ public class FplImportService {
 
     private final RestTemplate restTemplate;
     private final String FPL_BASE_URL = "https://fantasy.premierleague.com/api";
-    
+
     public FplImportService() {
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
         factory.setConnectTimeout(10000); // 10 seconds
@@ -42,16 +42,16 @@ public class FplImportService {
     public Team importTeamFromFpl(Long userId, Long entryId) {
         try {
             System.out.println("Starting FPL import for user " + userId + ", entry " + entryId);
-            
+
             // Try to get the most recent team data by checking multiple gameweeks
             // Start from a high gameweek and work backwards until we find data
             Map<String, Object> teamData = null;
             Integer gameweekUsed = null;
-            
+
             // First, try to get the current gameweek from the API
             Integer currentGameweek = getCurrentGameweek();
             System.out.println("API reports current gameweek: " + currentGameweek);
-            
+
             // Try current gameweek first, then work backwards
             if (teamData == null) {
                 System.out.println("Trying current gameweek (" + currentGameweek + ") and working backwards...");
@@ -59,17 +59,18 @@ public class FplImportService {
                     try {
                         String picksUrl = String.format("%s/entry/%d/event/%d/picks/", FPL_BASE_URL, entryId, gw);
                         System.out.println("Trying gameweek " + gw + ": " + picksUrl);
-                        
+
                         ResponseEntity<Map> response = restTemplate.getForEntity(picksUrl, Map.class);
-                        
+
                         if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
                             Map<String, Object> data = response.getBody();
                             List<Map<String, Object>> picks = (List<Map<String, Object>>) data.get("picks");
-                            
+
                             if (picks != null && !picks.isEmpty()) {
                                 teamData = data;
                                 gameweekUsed = gw;
-                                System.out.println("Found team data for gameweek " + gw + " with " + picks.size() + " players");
+                                System.out.println(
+                                        "Found team data for gameweek " + gw + " with " + picks.size() + " players");
                                 break;
                             }
                         }
@@ -79,7 +80,7 @@ public class FplImportService {
                     }
                 }
             }
-            
+
             // If we still haven't found data, try from gameweek 20 down to current+1
             if (teamData == null) {
                 System.out.println("No data found from current gameweek down, trying higher gameweeks...");
@@ -87,17 +88,18 @@ public class FplImportService {
                     try {
                         String picksUrl = String.format("%s/entry/%d/event/%d/picks/", FPL_BASE_URL, entryId, gw);
                         System.out.println("Trying higher gameweek " + gw + ": " + picksUrl);
-                        
+
                         ResponseEntity<Map> response = restTemplate.getForEntity(picksUrl, Map.class);
-                        
+
                         if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
                             Map<String, Object> data = response.getBody();
                             List<Map<String, Object>> picks = (List<Map<String, Object>>) data.get("picks");
-                            
+
                             if (picks != null && !picks.isEmpty()) {
                                 teamData = data;
                                 gameweekUsed = gw;
-                                System.out.println("Found team data for gameweek " + gw + " with " + picks.size() + " players");
+                                System.out.println(
+                                        "Found team data for gameweek " + gw + " with " + picks.size() + " players");
                                 break;
                             }
                         }
@@ -107,26 +109,27 @@ public class FplImportService {
                     }
                 }
             }
-            
+
             if (teamData == null) {
                 throw new RuntimeException("Could not find team data for any gameweek");
             }
-            
+
             // Extract picks
             List<Map<String, Object>> picks = (List<Map<String, Object>>) teamData.get("picks");
             System.out.println("Using team data from gameweek " + gameweekUsed + " with " + picks.size() + " players");
-            
+
             // Get user first
             System.out.println("Looking for user with ID: " + userId);
             Optional<User> userOpt = userRepository.findById(userId);
             if (!userOpt.isPresent()) {
                 System.out.println("User not found in database. Available users:");
-                userRepository.findAll().forEach(u -> System.out.println("  - User ID: " + u.getId() + ", Email: " + u.getEmail()));
+                userRepository.findAll()
+                        .forEach(u -> System.out.println("  - User ID: " + u.getId() + ", Email: " + u.getEmail()));
                 throw new RuntimeException("User not found with ID: " + userId + ". Please register or log in first.");
             }
             User user = userOpt.get();
             System.out.println("Found user: " + user.getEmail() + " (ID: " + user.getId() + ")");
-            
+
             // Get or create team for user
             Team team = teamRepository.findByUserId(userId);
             if (team == null) {
@@ -141,16 +144,16 @@ public class FplImportService {
                 // Clear existing players
                 team.getPlayers().clear();
             }
-            
+
             // Process each pick and add players to team
             List<Player> teamPlayers = new ArrayList<>();
             long totalPlayersInDb = playerRepository.count();
             System.out.println("Total players in database: " + totalPlayersInDb);
-            
+
             for (Map<String, Object> pick : picks) {
                 Integer fplPlayerId = (Integer) pick.get("element");
                 Optional<Player> playerOpt = playerRepository.findByFplId(fplPlayerId.longValue());
-                
+
                 if (playerOpt.isPresent()) {
                     teamPlayers.add(playerOpt.get());
                     System.out.println("Added player: " + playerOpt.get().getName() + " (FPL ID: " + fplPlayerId + ")");
@@ -160,32 +163,34 @@ public class FplImportService {
                     System.out.println("  Checking if database has any players...");
                 }
             }
-            
-            System.out.println("Successfully matched " + teamPlayers.size() + " out of " + picks.size() + " players from FPL");
-            
+
+            System.out.println(
+                    "Successfully matched " + teamPlayers.size() + " out of " + picks.size() + " players from FPL");
+
             team.setPlayers(teamPlayers);
-            
+
             // Calculate remaining budget
             double totalValue = teamPlayers.stream()
-                .mapToDouble(Player::getValue)
-                .sum();
+                    .mapToDouble(Player::getValue)
+                    .sum();
             team.setBudget(100.0 - totalValue);
-            
+
             team = teamRepository.save(team);
-            System.out.println("Team saved with " + team.getPlayers().size() + " players from gameweek " + gameweekUsed);
-            
+            System.out
+                    .println("Team saved with " + team.getPlayers().size() + " players from gameweek " + gameweekUsed);
+
             return team;
-            
+
         } catch (Exception e) {
             throw new RuntimeException("Failed to import team from FPL: " + e.getMessage(), e);
         }
     }
-    
+
     private Integer getCurrentGameweek() {
         try {
             String bootstrapUrl = FPL_BASE_URL + "/bootstrap-static/";
             ResponseEntity<Map> response = restTemplate.getForEntity(bootstrapUrl, Map.class);
-            
+
             if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
                 Map<String, Object> data = response.getBody();
                 Map<String, Object> currentEvent = (Map<String, Object>) data.get("current-event");
@@ -198,7 +203,7 @@ public class FplImportService {
         } catch (Exception e) {
             System.out.println("Warning: Could not fetch current gameweek: " + e.getMessage());
         }
-        
+
         // If we can't get it from API, try to determine by testing recent gameweeks
         System.out.println("API failed, trying to determine current gameweek by testing recent weeks...");
         for (int gw = 10; gw >= 1; gw--) {
@@ -213,21 +218,21 @@ public class FplImportService {
                 continue;
             }
         }
-        
+
         return 7; // Default fallback - we know gameweek 7 exists
     }
-    
+
     public List<PlayerDTO> getTeamPlayers(Long userId) {
         Team team = teamRepository.findByUserId(userId);
         if (team == null) {
             return new ArrayList<>();
         }
-        
+
         return team.getPlayers().stream()
-            .map(this::convertToDTO)
-            .collect(Collectors.toList());
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
     }
-    
+
     private PlayerDTO convertToDTO(Player player) {
         PlayerDTO dto = new PlayerDTO();
         dto.setId(player.getId());
@@ -237,6 +242,7 @@ public class FplImportService {
         dto.setValue(player.getValue());
         dto.setTotalPoints(player.getTotalPoints());
         dto.setWeeklyPoints(player.getWeeklyPoints());
+        dto.setPredictedPoints(player.getPredictedPoints());
         return dto;
     }
 }
