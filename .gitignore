@@ -94,3 +94,10 @@ flask-api/check_db.py
 flask-api/test_ml_simple.py
 flask-api/test_optimize.py
 inspect_data.py
+
+# Model backups and historical data backups
+model-files/*_backup_*.csv
+model-files/*_backup_*.pkl
+
+# Temporary optimization files
+OPTIMIZATION_EXPLANATION.md
