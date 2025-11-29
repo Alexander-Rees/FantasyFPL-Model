@@ -1,0 +1,14 @@
+Content-Length: 53472
+Date: Fri, 21 Nov 2025 17:02:47 GMT
+Server: Apache/2.4.41 (Ubuntu)
+Vary: Accept-Encoding,User-Agent
+Content-Encoding: gzip
+Served-By: www3.ffs-i.co.uk
+Content-Type: text/html; charset=UTF-8
+X-Varnish: 858023718
+Age: 0
+Via: 1.1 varnish (Varnish/6.2)
+X-Varnish-Cache: MISS
+X-Varnish-Client-Ip: 24.60.125.92, 192.168.255.49
+X-Server-Ip: 192.168.203.14
+Accept-Ranges: bytes

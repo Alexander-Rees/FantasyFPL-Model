@@ -1,0 +1,27 @@
+{
+  "gameweek": 12,
+  "scraped_at": "2025-11-21T12:18:35.700959",
+  "articles": [
+    {
+      "filename": "general_fpl-gw12.md",
+      "title": "FPL GW12",
+      "category": "general",
+      "url": "https://www.fantasyfootballscout.co.uk/fpl-gameweek-12-tips-best-players-predicted-line-ups-team-news-more-3",
+      "word_count": 258
+    },
+    {
+      "filename": "captaincy_captaincy-picks.md",
+      "title": "Captaincy Picks",
+      "category": "captaincy",
+      "url": "https://www.fantasyfootballscout.co.uk/category/team-selection/fpl-captains",
+      "word_count": 69
+    },
+    {
+      "filename": "fixtures_fixture-ticker.md",
+      "title": "Fixture Ticker",
+      "category": "fixtures",
+      "url": "https://members.fantasyfootballscout.co.uk/season-ticker/",
+      "word_count": 50
+    }
+  ]
+}

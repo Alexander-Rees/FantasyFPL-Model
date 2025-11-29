@@ -171,10 +171,17 @@ def prepare_features(df):
     # Add gameweek for recency weighting
     feature_df['gameweek'] = df['gameweek']
     
-    # Drop first row per player (no history)
-    feature_df = feature_df[feature_df['minutes'] > 0] # Only train on rows where we have some history? 
-    # Actually, shift(1) makes the first row NaNs or 0s.
-    # We should drop rows where games_played == 0 if we want robust stats, but maybe 0 is fine.
+    # Filter out rows with insufficient data
+    # For placeholder data (GW=0), we still want to keep rows with valid target_points
+    # For real data, filter out first gameweek per player (no history yet)
+    if feature_df['gameweek'].max() > 0:
+        # Real data: drop rows where we don't have enough history
+        feature_df = feature_df[df['games_played'] > 0]
+    else:
+        # Placeholder data: just ensure we have valid target points
+        feature_df = feature_df[feature_df['target_points'].notna()]
+    
+    logger.info(f"Prepared {len(feature_df)} rows for training")
     
     return feature_df
 

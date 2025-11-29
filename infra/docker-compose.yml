@@ -9,6 +9,7 @@ networks:
 
 volumes:
   redis_data:
+  llm_vector_db:
 
 services:
   # Note: Using Supabase PostgreSQL (external), not local container
@@ -82,15 +83,40 @@ services:
       retries: 5
     networks: [app-net]
 
+  llm-service:
+    build:
+      context: ../llm-service
+      dockerfile: Dockerfile
+    environment:
+      - INTERNAL_API_TOKEN=${INTERNAL_API_TOKEN:-dev-internal-token}
+      - VECTOR_DB_PATH=/app/data/vector_db
+      - SCRAPED_DATA_PATH=/app/scraper/data/raw/scraped
+      - LLM_API_PROVIDER=${LLM_API_PROVIDER:-}
+      - LLM_API_KEY=${LLM_API_KEY:-}
+      - LLM_API_MODEL=${LLM_API_MODEL:-gpt-4o-mini}
+    ports:
+      - "5002:5002"
+    volumes:
+      - llm_vector_db:/app/data/vector_db
+      - ../llm-service/scraper/data/raw/scraped:/app/scraper/data/raw/scraped:ro
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:5002/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    networks: [app-net]
+
   frontend:
     build:
       context: ../frontend
       dockerfile: Dockerfile
     environment:
       - REACT_APP_API_BASE_URL=http://localhost:8081
+      - REACT_APP_LLM_API_URL=http://localhost:5002
     ports:
       - "3000:80"
     depends_on:
       - backend-api
+      - llm-service
     networks: [app-net]
 

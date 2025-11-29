@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { logoutUser } from '../actions/authActions';
+import RAGChat from './RAGChat';
 import './TeamManagement.css';
 
 const TeamManagement = () => {
@@ -178,6 +179,9 @@ const TeamManagement = () => {
           Logout
         </button>
       </div>
+
+      {/* RAG Chat Component */}
+      <RAGChat />
 
       <div className="team-content">
         {/* Only show import section if no team data */}

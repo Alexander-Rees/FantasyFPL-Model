@@ -1,0 +1,60 @@
+{
+  "gameweek": 11,
+  "scraped_at": "2025-11-21T12:13:25.478867",
+  "articles": [
+    {
+      "filename": "captaincy_captaincy-picks.md",
+      "title": "Captaincy Picks",
+      "category": "captaincy",
+      "url": "https://www.fantasyfootballscout.co.uk/category/team-selection/fpl-captains"
+    },
+    {
+      "filename": "fixtures_fixture-ticker.md",
+      "title": "Fixture Ticker",
+      "category": "fixtures",
+      "url": "https://members.fantasyfootballscout.co.uk/season-ticker/"
+    },
+    {
+      "filename": "transfers_transfer-planner.md",
+      "title": "Transfer Planner",
+      "category": "transfers",
+      "url": "https://www.fantasyfootballscout.co.uk/transfer-planner/"
+    },
+    {
+      "filename": "transfers_2025-26-transfers.md",
+      "title": "2025/26 Transfers",
+      "category": "transfers",
+      "url": "https://www.fantasyfootballscout.co.uk/fpl-2025-26-transfer-news-confirmed-summer-signings"
+    },
+    {
+      "filename": "general_ffs-mini-leagues-and-community-competitions-gamewe.md",
+      "title": "FFS Mini-Leagues and Community Competitions \u2013 Gameweek 11",
+      "category": "general",
+      "url": "https://www.fantasyfootballscout.co.uk/2025/11/13/ffs-mini-leagues-and-community-competitions-gameweek-11-2"
+    },
+    {
+      "filename": "general_what-moves-did-mark-sutherns-fpl-harry-more-make-i.md",
+      "title": "What moves did Mark Sutherns, FPL Harry + more make in Gameweek 11?",
+      "category": "general",
+      "url": "https://www.fantasyfootballscout.co.uk/2025/11/13/what-moves-did-mark-sutherns-fpl-harry-more-make-in-gameweek-11"
+    },
+    {
+      "filename": "transfers_the-fpl-transfer-curse-why-players-blank-when-you.md",
+      "title": "The FPL transfer curse: Why players blank when you buy + haul when you sell!",
+      "category": "transfers",
+      "url": "https://www.fantasyfootballscout.co.uk/2025/11/12/the-fpl-transfer-curse-why-players-blank-when-you-buy-haul-when-you-sell"
+    },
+    {
+      "filename": "general_ffs-mini-leagues-and-community-competitions-gamewe.md",
+      "title": "FFS Mini-Leagues and Community Competitions \u2013 Gameweek 10",
+      "category": "general",
+      "url": "https://www.fantasyfootballscout.co.uk/2025/11/05/ffs-mini-leagues-and-community-competitions-gameweek-10-2"
+    },
+    {
+      "filename": "general_what-moves-did-mark-sutherns-fpl-harry-more-make-i.md",
+      "title": "What moves did Mark Sutherns, FPL Harry + more make in Gameweek 10?",
+      "category": "general",
+      "url": "https://www.fantasyfootballscout.co.uk/2025/11/05/what-moves-did-fpl-harry-pras-more-make-in-fpl-gameweek-10"
+    }
+  ]
+}

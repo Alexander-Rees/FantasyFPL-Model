@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import RAGChat from "./RAGChat";
 import "./Team.css";
 
 const Team = () => {
@@ -90,6 +91,9 @@ const Team = () => {
       <div className="team-header">
         <h2>Your Team</h2>
       </div>
+
+      {/* RAG Chat Component */}
+      <RAGChat />
 
       {team ? (
         <div className="team-section">
