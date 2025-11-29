@@ -4,7 +4,10 @@ FastAPI service for FPL AI insights using RAG + Llama 3.1 8B
 """
 from fastapi import FastAPI, HTTPException, Depends, Header
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+from typing import Optional
 from app.core.config import settings
+from app.core.rag import get_rag_pipeline
 import logging
 
 # Configure logging
@@ -70,6 +73,58 @@ async def service_info():
         "vector_db": settings.VECTOR_DB_PATH,
         "status": "ready"
     }
+
+
+class QueryRequest(BaseModel):
+    query: str
+    category: Optional[str] = None
+    gameweek: Optional[int] = None
+    include_sources: bool = True
+
+
+class QueryResponse(BaseModel):
+    answer: str
+    sources: Optional[list] = None
+
+
+@app.post("/api/v1/query", response_model=QueryResponse)
+async def query_rag(request: QueryRequest):
+    """Query the RAG system"""
+    try:
+        rag = get_rag_pipeline()
+        result = rag.answer_question(
+            query=request.query,
+            category=request.category,
+            gameweek=request.gameweek,
+            include_sources=request.include_sources
+        )
+        return QueryResponse(**result)
+    except Exception as e:
+        logger.error(f"RAG query error: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/v1/retrieve")
+async def retrieve_only(query: str, top_k: int = 5):
+    """Retrieve context without LLM generation"""
+    try:
+        rag = get_rag_pipeline()
+        chunks = rag.retrieve_context(query=query, top_k=top_k)
+        return {
+            "query": query,
+            "count": len(chunks),
+            "results": [
+                {
+                    "text": c['text'][:500] + "..." if len(c['text']) > 500 else c['text'],
+                    "metadata": c['metadata'],
+                    "relevance": 1 - c['distance']
+                }
+                for c in chunks
+            ]
+        }
+    except Exception as e:
+        logger.error(f"Retrieval error: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 if __name__ == "__main__":
