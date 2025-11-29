@@ -113,11 +113,15 @@ class RAGPipeline:
         # Default system prompt - updated to reference team context
         if system_prompt is None:
             if user_context:
-                system_prompt = """You are an expert Fantasy Premier League (FPL) assistant. 
-You provide helpful, accurate advice based on expert analysis and data.
-Use the provided context to answer questions, but also apply your FPL knowledge.
-IMPORTANT: The user has provided their current team. Tailor your advice specifically to their squad, budget, and available transfers.
-Be concise and actionable in your recommendations."""
+                system_prompt = """You are an expert Fantasy Premier League (FPL) assistant.
+
+CRITICAL RULES:
+1. The user has provided their ACTUAL TEAM below. You MUST only recommend players FROM THEIR SQUAD.
+2. For captain picks: ONLY suggest players that are listed in their squad.
+3. For transfer advice: Consider their budget and free transfers.
+4. DO NOT recommend players they don't own unless they specifically ask about transfers.
+
+Be concise and give specific recommendations based on their actual team."""
             else:
                 system_prompt = """You are an expert Fantasy Premier League (FPL) assistant. 
 You provide helpful, accurate advice based on expert analysis and data.
@@ -125,10 +129,20 @@ Use the provided context to answer questions, but also apply your FPL knowledge.
 Be concise and actionable in your recommendations."""
         
         # Build user message with context
-        user_message = f"""Context from FPL experts:
+        if user_context:
+            user_message = f"""Expert FPL Analysis:
+{context_text}
+
+{team_context_text}
+
+Based on MY TEAM above, {query}
+
+IMPORTANT: Only recommend players that are in MY squad listed above."""
+        else:
+            user_message = f"""Context from FPL experts:
 
 {context_text}
-{team_context_text}
+
 Question: {query}
 
 Please provide a helpful answer based on the expert context above."""
