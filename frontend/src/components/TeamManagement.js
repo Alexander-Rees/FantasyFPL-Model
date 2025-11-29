@@ -180,8 +180,14 @@ const TeamManagement = () => {
         </button>
       </div>
 
-      {/* RAG Chat Component */}
-      <RAGChat />
+      {/* RAG Chat Component - pass team context */}
+      <RAGChat 
+        teamContext={{
+          players: teamData || [],
+          budget: optimizationSettings.budget,
+          freeTransfers: optimizationSettings.freeTransfers,
+        }}
+      />
 
       <div className="team-content">
         {/* Only show import section if no team data */}

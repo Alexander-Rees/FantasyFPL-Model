@@ -65,7 +65,8 @@ class RAGPipeline:
         self,
         query: str,
         context_chunks: list[dict],
-        system_prompt: str = None
+        system_prompt: str = None,
+        user_context: dict = None
     ) -> str:
         """
         Generate response using LLM with retrieved context
@@ -74,6 +75,7 @@ class RAGPipeline:
             query: User query
             context_chunks: Retrieved context chunks
             system_prompt: Custom system prompt (optional)
+            user_context: User's team context (optional)
             
         Returns:
             Generated response
@@ -84,9 +86,40 @@ class RAGPipeline:
             for chunk in context_chunks
         ])
         
-        # Default system prompt
+        # Build user team context if provided
+        team_context_text = ""
+        if user_context:
+            team_context_text = "\n\n--- USER'S TEAM CONTEXT ---\n"
+            
+            if user_context.get('team_players'):
+                players = user_context['team_players']
+                team_context_text += f"Current Squad ({len(players)} players):\n"
+                for p in players[:15]:
+                    name = p.get('name', 'Unknown')
+                    position = p.get('position', '?')
+                    team = p.get('team', '?')
+                    points = p.get('totalPoints', p.get('total_points', 0))
+                    value = p.get('value', 0)
+                    team_context_text += f"- {name} ({position}, {team}) - £{value}m, {points} pts\n"
+            
+            if user_context.get('budget'):
+                team_context_text += f"\nRemaining Budget: £{user_context['budget']}m\n"
+            
+            if user_context.get('free_transfers') is not None:
+                team_context_text += f"Free Transfers: {user_context['free_transfers']}\n"
+            
+            team_context_text += "--- END TEAM CONTEXT ---\n"
+        
+        # Default system prompt - updated to reference team context
         if system_prompt is None:
-            system_prompt = """You are an expert Fantasy Premier League (FPL) assistant. 
+            if user_context:
+                system_prompt = """You are an expert Fantasy Premier League (FPL) assistant. 
+You provide helpful, accurate advice based on expert analysis and data.
+Use the provided context to answer questions, but also apply your FPL knowledge.
+IMPORTANT: The user has provided their current team. Tailor your advice specifically to their squad, budget, and available transfers.
+Be concise and actionable in your recommendations."""
+            else:
+                system_prompt = """You are an expert Fantasy Premier League (FPL) assistant. 
 You provide helpful, accurate advice based on expert analysis and data.
 Use the provided context to answer questions, but also apply your FPL knowledge.
 Be concise and actionable in your recommendations."""
@@ -95,7 +128,7 @@ Be concise and actionable in your recommendations."""
         user_message = f"""Context from FPL experts:
 
 {context_text}
-
+{team_context_text}
 Question: {query}
 
 Please provide a helpful answer based on the expert context above."""
@@ -113,7 +146,8 @@ Please provide a helpful answer based on the expert context above."""
         query: str,
         category: str = None,
         gameweek: int = None,
-        include_sources: bool = True
+        include_sources: bool = True,
+        user_context: dict = None
     ) -> dict:
         """
         Complete RAG pipeline: retrieve + generate
@@ -123,11 +157,15 @@ Please provide a helpful answer based on the expert context above."""
             category: Filter by category
             gameweek: Filter by gameweek
             include_sources: Include source metadata in response
+            user_context: User's team context (optional)
             
         Returns:
             Dict with 'answer' and optionally 'sources'
         """
         logger.info(f"RAG query: {query}")
+        if user_context:
+            player_count = len(user_context.get('team_players', []))
+            logger.info(f"User context: {player_count} players, budget={user_context.get('budget')}, transfers={user_context.get('free_transfers')}")
         
         # Retrieve context
         context_chunks = self.retrieve_context(
@@ -144,8 +182,8 @@ Please provide a helpful answer based on the expert context above."""
                 "sources": []
             }
         
-        # Generate response
-        answer = self.generate_response(query, context_chunks)
+        # Generate response with user context
+        answer = self.generate_response(query, context_chunks, user_context=user_context)
         
         result = {"answer": answer}
         

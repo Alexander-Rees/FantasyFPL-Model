@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import "./RAGChat.css";
 
-const RAGChat = () => {
+const RAGChat = ({ teamContext }) => {
   const [query, setQuery] = useState("");
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -33,10 +33,23 @@ const RAGChat = () => {
     try {
       // Call LLM service - use environment variable or default to localhost
       const llmApiUrl = process.env.REACT_APP_LLM_API_URL || "http://localhost:5002";
-      const response = await axios.post(`${llmApiUrl}/api/v1/query`, {
+      
+      // Build request with optional team context
+      const requestBody = {
         query: userMessage,
         include_sources: true,
-      });
+      };
+      
+      // Add team context if available
+      if (teamContext) {
+        requestBody.user_context = {
+          team_players: teamContext.players || [],
+          budget: teamContext.budget,
+          free_transfers: teamContext.freeTransfers,
+        };
+      }
+      
+      const response = await axios.post(`${llmApiUrl}/api/v1/query`, requestBody);
 
       // Add assistant response
       setMessages([

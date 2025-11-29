@@ -75,11 +75,18 @@ async def service_info():
     }
 
 
+class UserContext(BaseModel):
+    team_players: Optional[list] = None
+    budget: Optional[float] = None
+    free_transfers: Optional[int] = None
+
+
 class QueryRequest(BaseModel):
     query: str
     category: Optional[str] = None
     gameweek: Optional[int] = None
     include_sources: bool = True
+    user_context: Optional[UserContext] = None
 
 
 class QueryResponse(BaseModel):
@@ -92,11 +99,22 @@ async def query_rag(request: QueryRequest):
     """Query the RAG system"""
     try:
         rag = get_rag_pipeline()
+        
+        # Convert user_context to dict if provided
+        user_context = None
+        if request.user_context:
+            user_context = {
+                'team_players': request.user_context.team_players,
+                'budget': request.user_context.budget,
+                'free_transfers': request.user_context.free_transfers,
+            }
+        
         result = rag.answer_question(
             query=request.query,
             category=request.category,
             gameweek=request.gameweek,
-            include_sources=request.include_sources
+            include_sources=request.include_sources,
+            user_context=user_context
         )
         return QueryResponse(**result)
     except Exception as e:
