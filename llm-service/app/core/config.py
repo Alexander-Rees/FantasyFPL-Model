@@ -29,9 +29,9 @@ class Settings(BaseSettings):
     # Groq free models: llama-3.1-8b-instant, llama-3.1-70b-versatile, mixtral-8x7b-32768
     # Hugging Face: meta-llama/Meta-Llama-3-8B-Instruct, mistralai/Mistral-7B-Instruct-v0.2
     
-    # Embedding Model
-    EMBEDDING_MODEL_NAME: str = "BAAI/bge-m3"
-    EMBEDDING_DIM: int = 1024
+    # Embedding Model (all-MiniLM-L6-v2 is small & fast, bge-m3 is better but slower)
+    EMBEDDING_MODEL_NAME: str = "all-MiniLM-L6-v2"
+    EMBEDDING_DIM: int = 384
     
     # Vector Store
     VECTOR_DB_PATH: str = "data/vector_db"

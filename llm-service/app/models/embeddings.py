@@ -32,12 +32,14 @@ class EmbeddingModel:
         try:
             logger.info(f"Loading embedding model {self.model_name}")
             self.model = SentenceTransformer(self.model_name)
+            self._loaded = True
             logger.info("✅ Embedding model loaded successfully")
         except Exception as e:
             logger.warning(f"Embedding model load failed ({e}); falling back to random embeddings.")
             self.model = None
+            self._loaded = True  # Mark as loaded even on failure to prevent retry loops
             import numpy as np
-            self.random_state = np.random.RandomState(42) # Initialize random state for deterministic fallback
+            self.random_state = np.random.RandomState(42)
     
     def _embed(self, texts: list[str]) -> np.ndarray:
         """Internal method to get embeddings, handling fallback."""
