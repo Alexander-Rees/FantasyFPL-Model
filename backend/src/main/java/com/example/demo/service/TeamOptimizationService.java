@@ -14,13 +14,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
@@ -43,13 +39,9 @@ public class TeamOptimizationService {
 
     private final RestTemplate restTemplate;
 
-    public TeamOptimizationService() {
-        this.restTemplate = new RestTemplate();
-        // Configure timeouts
-        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
-        factory.setConnectTimeout(5000); // 5 seconds
-        factory.setReadTimeout(10000); // 10 seconds
-        this.restTemplate.setRequestFactory(factory);
+    @Autowired
+    public TeamOptimizationService(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
     }
 
     public OptimizeResponseDTO optimizeTeam(Long userId, OptimizeRequestDTO request) {

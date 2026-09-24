@@ -162,26 +162,35 @@ npm start
 
 ## Testing
 
-### Run Tests
+### Unit tests (no Docker / kind)
 
 ```bash
-# Backend tests
-cd backend && ./mvnw test
-
-# Flask tests (when implemented)
-cd flask-api && pytest
-
-# Frontend tests
-cd frontend && npm test
+make test
+# or
+./scripts/test-unit.sh
 ```
 
-### Integration Tests
+Runs backend JUnit, Flask pytest, and frontend Jest. Fails closed on any failure.
+
+### Integration smoke (kind + ephemeral Postgres)
 
 ```bash
-make up  # Start services
-curl http://localhost:8081/actuator/health
-curl http://localhost:5001/health
+make test-integration
+# or
+./scripts/test-integration-kind.sh
 ```
+
+Creates a kind cluster, applies `infra/k8s/overlays/ci` (Postgres + Redis + backend + flask), and runs health/auth/players/optimize smoke checks. Does **not** use prod Supabase.
+
+Leave the cluster up while iterating:
+
+```bash
+KEEP_CLUSTER=1 ./scripts/test-integration-kind.sh
+```
+
+### Branch protection
+
+See `docs/BRANCH_PROTECTION.md` for required GitHub checks.
 
 ## CI/CD
 

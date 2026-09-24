@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flask-ml
+spec:
+  template:
+    spec:
+      containers:
+        - name: flask-ml
+          env:
+            - name: INTERNAL_API_TOKEN
+              value: ci-internal-token
+            - name: DB_HOST
+              value: postgres
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_NAME
+              value: fpl
+            - name: DB_USER
+              value: fpl
+            - name: DB_PASSWORD
+              value: fpl-ci-password
+            - name: DB_SSLMODE
+              value: disable
+            - name: REDIS_HOST
+              value: redis
+            - name: REDIS_PORT
+              value: "6379"

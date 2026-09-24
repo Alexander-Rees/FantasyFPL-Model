@@ -26,7 +26,6 @@ import pandas as pd
 import numpy as np
 import joblib
 import json
-from pulp import LpMaximize, LpProblem, LpVariable, lpSum
 import time
 import logging
 from datetime import datetime
@@ -43,6 +42,7 @@ from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
 from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
 from cache_utils import cache_result, get_redis_client
+from optimize_core import optimize_squad
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -89,13 +89,14 @@ def get_db_connection():
         logger.warning("psycopg2 not available - database features disabled")
         return None
     try:
+        sslmode = os.getenv('DB_SSLMODE', 'require')
         connection = psycopg2.connect(
             host=DB_CONFIG['host'],
             port=DB_CONFIG['port'],
             user=DB_CONFIG['user'],
             password=DB_CONFIG['password'],
             database=DB_CONFIG['database'],
-            sslmode='require'
+            sslmode=sslmode
         )
         return connection
     except Error as e:
@@ -677,125 +678,21 @@ def optimize_team(current_user_id):
                 return predictions_response
             players_data = predictions_response[0].json['players']
         
-        # Filter out avoid players
-        if avoid_players:
-            avoid_ids = set(avoid_players)
-            players_data = [p for p in players_data if p.get('id') not in avoid_ids]
-        
-        # Formation map for starting XI
-        formation_map = {
-            '3-4-3': {'GK': 1, 'DEF': 3, 'MID': 4, 'FWD': 3},
-            '3-5-2': {'GK': 1, 'DEF': 3, 'MID': 5, 'FWD': 2},
-            '4-4-2': {'GK': 1, 'DEF': 4, 'MID': 4, 'FWD': 2},
-            '4-3-3': {'GK': 1, 'DEF': 4, 'MID': 3, 'FWD': 3},
-            '5-4-1': {'GK': 1, 'DEF': 5, 'MID': 4, 'FWD': 1}
-        }
-        position_limits = formation_map.get(formation, {'GK': 1, 'DEF': 3, 'MID': 4, 'FWD': 3})
-        
-        # Create optimization problem
-        problem = LpProblem("FPL_Team_Optimization", LpMaximize)
-        
-        # Create binary variables for each player
-        player_vars = {}
-        for player in players_data:
-            player_vars[player['id']] = LpVariable(f"player_{player['id']}", cat='Binary')
-        
-        # Objective: Maximize predicted points
-        problem += lpSum([player_vars[player['id']] * player.get('predicted_points', player.get('total_points', 0)) for player in players_data])
-        
-        # Starting XI position constraints based on formation
-        gk_players = [p for p in players_data if p['position'] == 'GK']
-        def_players = [p for p in players_data if p['position'] == 'DEF']
-        mid_players = [p for p in players_data if p['position'] == 'MID']
-        fwd_players = [p for p in players_data if p['position'] == 'FWD']
-        
-        problem += lpSum([player_vars[p['id']] for p in gk_players]) == position_limits['GK']  # Starting GK
-        problem += lpSum([player_vars[p['id']] for p in def_players]) == position_limits['DEF']  # Starting DEF
-        problem += lpSum([player_vars[p['id']] for p in mid_players]) == position_limits['MID']  # Starting MID
-        problem += lpSum([player_vars[p['id']] for p in fwd_players]) == position_limits['FWD']  # Starting FWD
-        
-        # Total squad size (11 starting + 4 bench = 15)
-        problem += lpSum([player_vars[player['id']] for player in players_data]) == 15
-        
-        # Budget constraint
-        problem += lpSum([player_vars[player['id']] * player.get('value', 0) for player in players_data]) <= budget
-        
-        # Team limit constraint (max 3 players per team)
-        teams = list(set([p.get('team', '') for p in players_data]))
-        for team in teams:
-            if team:  # Skip empty team names
-                team_players = [p for p in players_data if p.get('team') == team]
-                problem += lpSum([player_vars[p['id']] for p in team_players]) <= 3
-        
-        # Locked players constraint
-        if locked_players:
-            for player_id in locked_players:
-                if player_id in player_vars:
-                    problem += player_vars[player_id] == 1
-        
-        # Solve the problem
-        problem.solve()
-        
-        # Get selected players
-        selected_players = []
-        for player in players_data:
-            if player_vars[player['id']].varValue and player_vars[player['id']].varValue > 0.5:
-                selected_players.append(player)
-        
-        # Separate starting XI and bench
-        # Starting XI: top players by predicted points up to formation limits
-        selected_players.sort(key=lambda x: x.get('predicted_points', x.get('total_points', 0)), reverse=True)
-        
-        optimal_team = []
-        bench = []
-        position_counts = {'GK': 0, 'DEF': 0, 'MID': 0, 'FWD': 0}
-        
-        for player in selected_players:
-            pos = player.get('position', '')
-            if pos in position_counts and position_counts[pos] < position_limits[pos]:
-                optimal_team.append(player)
-                position_counts[pos] += 1
-            elif len(bench) < 4:
-                bench.append(player)
-        
-        # Select captain and vice-captain
-        captain = max(optimal_team, key=lambda x: x.get('predicted_points', x.get('total_points', 0))) if optimal_team else None
-        vice_captain = max([p for p in optimal_team if p.get('id') != captain.get('id')], 
-                          key=lambda x: x.get('predicted_points', x.get('total_points', 0)), default=captain) if optimal_team and captain else None
-        
-        # Generate transfer suggestions
-        transfers = []
-        if free_transfers > 0 and current_team:
-            current_team_sorted = sorted(current_team, key=lambda x: x.get('total_points', 0))
-            for i in range(min(free_transfers, len(current_team_sorted))):
-                player_out = current_team_sorted[i]
-                # Find better replacement in same position
-                better_players = [p for p in optimal_team 
-                                if p.get('position') == player_out.get('position') 
-                                and p.get('predicted_points', p.get('total_points', 0)) > player_out.get('total_points', 0)]
-                if better_players:
-                    player_in = better_players[0]
-                    transfers.append({
-                        'player_out': player_out,
-                        'player_in': player_in,
-                        'cost': player_in.get('value', 0) - player_out.get('value', 0),
-                        'reason': f"Upgrade from {player_out.get('total_points', 0)} to {player_in.get('predicted_points', player_in.get('total_points', 0))} predicted points"
-                    })
-        
-        # Calculate totals
-        total_value = sum(p.get('value', 0) for p in optimal_team)
-        total_points = sum(p.get('predicted_points', p.get('total_points', 0)) for p in optimal_team)
-        
-        result = {
-            'optimal_team': optimal_team,
-            'bench': bench,
-            'captain': captain,
-            'vice_captain': vice_captain,
-            'transfers': transfers,
-            'total_value': total_value,
-            'total_points': int(total_points),
-            'formation': formation
-        }
+        result = optimize_squad(
+            players_data=players_data,
+            budget=budget,
+            formation=formation,
+            locked_players=locked_players,
+            avoid_players=avoid_players,
+            current_team=current_team,
+            free_transfers=free_transfers,
+        )
+        if result.get('status') == 'infeasible':
+            return jsonify({'error': 'No feasible squad for given constraints'}), 400
+        optimal_team = result.get('optimal_team') or []
+        bench = result.get('bench') or []
+        total_value = result.get('total_value', 0)
+        total_points = result.get('total_points', 0)
         
         # Store in cache (30 min TTL)
         if redis_client:

@@ -1,0 +1,16 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: fpl
+resources:
+  - ../../base
+  - postgres.yaml
+patches:
+  - path: backend-env-patch.yaml
+  - path: flask-env-patch.yaml
+images:
+  - name: backend-api
+    newName: backend-api
+    newTag: ci
+  - name: flask-ml
+    newName: flask-ml
+    newTag: ci

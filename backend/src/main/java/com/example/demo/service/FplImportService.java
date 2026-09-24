@@ -9,7 +9,6 @@ import com.example.demo.repository.TeamRepository;
 import com.example.demo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -32,11 +31,9 @@ public class FplImportService {
     private final RestTemplate restTemplate;
     private final String FPL_BASE_URL = "https://fantasy.premierleague.com/api";
 
-    public FplImportService() {
-        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
-        factory.setConnectTimeout(10000); // 10 seconds
-        factory.setReadTimeout(10000); // 10 seconds
-        this.restTemplate = new RestTemplate(factory);
+    @Autowired
+    public FplImportService(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
     }
 
     public Team importTeamFromFpl(Long userId, Long entryId) {

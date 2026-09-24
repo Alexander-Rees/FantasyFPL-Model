@@ -1,0 +1,10 @@
+# Dev overlay: point at external Supabase via Secret (not used by PR CI).
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: fpl
+resources:
+  - ../../base
+  - secret-example.yaml
+patches:
+  - path: backend-supabase-patch.yaml
+  - path: flask-supabase-patch.yaml

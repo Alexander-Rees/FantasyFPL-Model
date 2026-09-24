@@ -1,0 +1,17 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flask-ml
+spec:
+  template:
+    spec:
+      containers:
+        - name: flask-ml
+          envFrom:
+            - secretRef:
+                name: supabase-db
+          env:
+            - name: INTERNAL_API_TOKEN
+              value: dev-internal-token
+            - name: REDIS_HOST
+              value: redis
