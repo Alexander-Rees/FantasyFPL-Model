@@ -4,21 +4,34 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
 
 @Component
 public class JwtUtil {
-    
-    private static final String SECRET_KEY = "mySecretKey123456789012345678901234567890"; // 32+ characters for HS256
+
     private static final int JWT_EXPIRATION = 86400000; // 24 hours in milliseconds
-    
-    private Key getSigningKey() {
-        return Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
+    private static final int MIN_SECRET_BYTES = 32;
+
+    private final Key signingKey;
+
+    public JwtUtil(@Value("${jwt.secret}") String secret) {
+        byte[] keyBytes = secret == null ? new byte[0] : secret.getBytes(StandardCharsets.UTF_8);
+        if (keyBytes.length < MIN_SECRET_BYTES) {
+            throw new IllegalStateException(
+                    "jwt.secret / JWT_SECRET must be at least " + MIN_SECRET_BYTES + " bytes for HS256");
+        }
+        this.signingKey = Keys.hmacShaKeyFor(keyBytes);
     }
-    
+
+    private Key getSigningKey() {
+        return signingKey;
+    }
+
     public String generateToken(String email, Long userId) {
         return Jwts.builder()
                 .setSubject(email)
@@ -28,28 +41,28 @@ public class JwtUtil {
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
-    
+
     public String extractEmail(String token) {
         return extractClaims(token).getSubject();
     }
-    
+
     public Long extractUserId(String token) {
         return extractClaims(token).get("userId", Long.class);
     }
-    
+
     public Date extractExpiration(String token) {
         return extractClaims(token).getExpiration();
     }
-    
+
     public boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
-    
+
     public boolean validateToken(String token, String email) {
         final String extractedEmail = extractEmail(token);
         return (extractedEmail.equals(email) && !isTokenExpired(token));
     }
-    
+
     private Claims extractClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())

@@ -22,6 +22,12 @@ def test_health_returns_ok(client):
     assert "response_time_ms" in body
 
 
+def test_secret_key_comes_from_env(client):
+    from app_with_db import app
+
+    assert app.config["SECRET_KEY"] == "test-jwt-secret-not-for-production-use"
+
+
 def test_internal_token_rejected(client):
     response = client.post(
         "/api/optimize",

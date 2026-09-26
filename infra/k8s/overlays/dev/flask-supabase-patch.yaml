@@ -13,5 +13,9 @@ spec:
           env:
             - name: INTERNAL_API_TOKEN
               value: dev-internal-token
+            - name: SECRET_KEY
+              value: your-jwt-secret-change-in-production
+            - name: JWT_SECRET
+              value: your-jwt-secret-change-in-production
             - name: REDIS_HOST
               value: redis

@@ -51,7 +51,7 @@ logger = logging.getLogger(__name__)
 # Initialize Flask app
 app = Flask(__name__)
 CORS(app)  # Enable CORS for frontend integration
-app.config['SECRET_KEY'] = 'your-secret-key-change-in-production'
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY') or os.getenv('JWT_SECRET') or 'your-jwt-secret-change-in-production'
 
 # Database Configuration from env vars
 DB_CONFIG = {

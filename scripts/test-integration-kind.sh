@@ -172,6 +172,17 @@ if [[ "$PLAYERS_STATUS" != "200" ]]; then
   exit 1
 fi
 
+echo "==> Optimize rejects missing JWT"
+UNAUTH_OPT=$(curl -s -o /tmp/optimize-unauth.json -w "%{http_code}" \
+  -X POST "${BACKEND_URL}/api/v1/team/optimize?userId=${USER_ID}" \
+  -H "Content-Type: application/json" \
+  -d '{"budget":100.0,"freeTransfers":1,"formation":"3-4-3"}')
+if [[ "$UNAUTH_OPT" != "401" ]]; then
+  echo "ERROR: expected optimize 401 without JWT, got $UNAUTH_OPT" >&2
+  cat /tmp/optimize-unauth.json >&2 || true
+  exit 1
+fi
+
 echo "==> Optimize (expects 200 or 202)"
 OPT_STATUS=$(curl -s -o /tmp/optimize.json -w "%{http_code}" \
   -X POST "${BACKEND_URL}/api/v1/team/optimize?userId=${USER_ID}" \

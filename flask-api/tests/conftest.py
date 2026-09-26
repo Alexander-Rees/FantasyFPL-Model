@@ -4,6 +4,8 @@ import pytest
 # Ensure deterministic token for decorator tests before app import side effects
 os.environ.setdefault("INTERNAL_API_TOKEN", "test-internal-token")
 os.environ.setdefault("DB_SSLMODE", "disable")
+os.environ.setdefault("SECRET_KEY", "test-jwt-secret-not-for-production-use")
+os.environ.setdefault("JWT_SECRET", "test-jwt-secret-not-for-production-use")
 
 
 @pytest.fixture

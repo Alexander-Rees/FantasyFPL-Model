@@ -23,6 +23,10 @@ spec:
           env:
             - name: INTERNAL_API_TOKEN
               value: ci-internal-token
+            - name: SECRET_KEY
+              value: ci-jwt-secret-not-for-production-use
+            - name: JWT_SECRET
+              value: ci-jwt-secret-not-for-production-use
             - name: REDIS_HOST
               value: redis
             - name: REDIS_PORT
