@@ -24,5 +24,7 @@ spec:
               value: "6379"
             - name: INTERNAL_API_TOKEN
               value: ci-internal-token
+            - name: JWT_SECRET
+              value: ci-jwt-secret-not-for-production-use
             - name: JAVA_OPTS
               value: "-Xms256m -Xmx512m"

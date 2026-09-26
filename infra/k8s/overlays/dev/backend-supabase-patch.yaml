@@ -19,3 +19,5 @@ spec:
               value: redis
             - name: INTERNAL_API_TOKEN
               value: dev-internal-token
+            - name: JWT_SECRET
+              value: your-jwt-secret-change-in-production

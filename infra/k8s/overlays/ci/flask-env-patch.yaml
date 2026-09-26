@@ -10,6 +10,10 @@ spec:
           env:
             - name: INTERNAL_API_TOKEN
               value: ci-internal-token
+            - name: SECRET_KEY
+              value: ci-jwt-secret-not-for-production-use
+            - name: JWT_SECRET
+              value: ci-jwt-secret-not-for-production-use
             - name: DB_HOST
               value: postgres
             - name: DB_PORT
