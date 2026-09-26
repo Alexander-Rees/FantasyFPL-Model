@@ -100,4 +100,4 @@ model-files/*_backup_*.csv
 model-files/*_backup_*.pkl
 
 # Temporary optimization files
-OPTIMIZATION_EXPLANATION.md
+docs/
